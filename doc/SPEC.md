@@ -83,26 +83,26 @@ INPUTは1ビット単位でマッピング、OUTPUTは8bitで一色つまり24bi
 
 ## 言語仕様
 ```peg
-num <- '-'? '0x' ('a'..'f' | 'A'..'F' | '0'..'9')+
-symbol <- ('a'..'Z' | '_') ('a'..'Z' | '_' | '0'..'9')*
-operator <- '+' | '-' | '*' | '/' | '%' | '^' | '!' | '|' | '||' | '&' | '&&' | '=='
+        num <- '-'? '0x' ('a'..'f' | 'A'..'F' | '0'..'9')+
+     symbol <- ('a'..'Z' | '_') ('a'..'Z' | '_' | '0'..'9')*
+   operator <- '+' | '-' | '*' | '/' | '%' | '^' | '!' | '|' | '||' | '&' | '&&' | '=='
 
-expr <- num | symbol | (expr operator expr)
+       expr <- num | symbol | (expr operator expr)
 
 
-while <- 'while' '(' expr ')' '{' stmt* '}'
-if <- 'if' '(' expr ')' '{' stmt* '}' 'else' '{' stmt* '}'
-return <- 'return' expr ';'
+      while <- 'while' '(' expr ')' '{' stmt* '}'
+         if <- 'if' '(' expr ')' '{' stmt* '}' 'else' '{' stmt* '}'
+     return <- 'return' expr ';'
 declaration <- 'var' symbol ('[' num ']')? = expr ';'
-assign <- symbol '=' expr ';'
-loop-ctrl <- ('break' | 'continue') ';'
+     assign <- symbol '=' expr ';'
+  loop-ctrl <- ('break' | 'continue') ';'
 
-comment <- '//' .* \br
-stmt <- while | if | return | declaration | assign | loop-ctrl | comment
+    comment <- '//' .* \br
+       stmt <- while | if | return | declaration | assign | loop-ctrl | comment
 
-function <- 'func' symbol '(' symbol (',' symbol)* ')' '{' stmt* '}'
+   function <- 'func' symbol '(' symbol (',' symbol)* ')' '{' stmt* '}'
 
-program <- function+
+    program <- function+
 ```
 
 # エミュレータ
@@ -115,12 +115,12 @@ program <- function+
 
 ## アセンブリ言語仕様
 ```
-opcode <- <opecodes>
+ opcode <- <opecodes>
 operand <- '-'? '0x'? ('a'..'f' | 'A'..'F' | '0'..'9')+
 comment <- ';' .* \br
-symbol <- ('a'..'Z' | '_') ('a'..'Z' | '_' | '0'..'9')*
-label <- symbol ':' \br
-stmt <- (opecode operand? | label) (\br | comment) | comment
+ symbol <- ('a'..'Z' | '_') ('a'..'Z' | '_' | '0'..'9')*
+  label <- symbol ':' \br
+   stmt <- (opecode operand? | label) (\br | comment) | comment
 ```
 ### ラベル
 関数名をアドレス直打ちでやるのは流石に面倒なのでラベルを宣言し、アドレス直打ちの代わりにラベル名で使用できるようにする。
