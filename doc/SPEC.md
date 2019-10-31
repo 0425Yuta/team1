@@ -71,9 +71,11 @@ INPUTは1ビット単位でマッピング、OUTPUTは8bitで一色つまり24bi
  * ローカル変数の数だけダミーの値をpush
  * 〜処理〜
  * retを呼び出す
+ * retがスタックのトップの値をRETに退避
  * retがFPをSPにセットしてスタックを巻き戻す
  * retがFP+1の値(再開位置)をPCにセットして復帰
  * retがFP+2の値(元のFP)をFPにセットしてFPを巻き戻し
+ * retがRETをスタックにpush
 
 ```
 |呼び出し元関数の領域|PC|FP|引数1|引数2|引数3|ローカル変数1|ローカル変数2|自由に使えるスタック領域
@@ -143,7 +145,7 @@ func foo() {
 ```
 
 ```asm
-label: add3
+add3:
 loadl 0
 loadl 1
 add
@@ -151,7 +153,7 @@ loadl 2
 add
 ret
 
-label: foo
+foo:
 imm 0; ローカル変数確保 (a)
 imm 0; ローカル変数確保 (b)
 imm 0; ローカル変数確保 (c)
