@@ -9,7 +9,6 @@
 # 設計仕様
 
 ## 計算機アーキテクチャ
-![functionblock](https://raw.githubusercontent.com/nitk-cpu-2019/team1/master/doc/fig/functionblock.svg?sanitize=true)
 ### メモリ領域
 |種別    |名称    |詳細                          |
 |:------:|:------:|:-----------------------------|
@@ -83,7 +82,6 @@ INPUTは1ビット単位でマッピング、OUTPUTは8bitで一色つまり24bi
 引数とローカル変数の区別はない。引数、ローカル変数の順にユニークな番号を振り、それをstol、loadl系のoperandに用いる
 
 # コンパイラ
-![compiler](https://raw.githubusercontent.com/nitk-cpu-2019/team1/master/doc/fig/compiler.png)
 
 ## 言語仕様
 ```peg
@@ -112,10 +110,8 @@ declaration <- 'var' symbol ('[' num ']')? = expr ';'
 # エミュレータ
 アセンブラの出力したバイナリファイルをコマンドラインから渡し、GUIにてVGAへの出力をエミュレートする。
 入力はキーボードにて行う。
-![emu](https://raw.githubusercontent.com/nitk-cpu-2019/team1/master/doc/fig/emu.png)
 
 # アセンブラ
-![assembler](https://raw.githubusercontent.com/nitk-cpu-2019/team1/master/doc/fig/assembler.png)
 ## 出力
 バイナリファイル
 
