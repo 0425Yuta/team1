@@ -10,4 +10,5 @@
 *.jdi
 *.sld
 *.qws
+*smsg
 !DE10-Lite_pin.qsf.txt
