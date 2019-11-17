@@ -31,18 +31,26 @@ module VGA
 	output logic VGA_HS,
 	output logic VGA_VS
 );
-	localparam WIDTH_TOTAL = HSYNC_WIDTH + H_BACK_PORCH + WIDTH + H_FRONT_PORCH;
-	localparam HEIGHT_TOTAL = VSYNC_HEIGHT + V_BACK_PORCH + HEIGHT + V_FRONT_PORCH;
-
+	localparam [15:0] WIDTH_TOTAL = HSYNC_WIDTH + H_BACK_PORCH + WIDTH + H_FRONT_PORCH;
+	localparam [15:0] HEIGHT_TOTAL = VSYNC_HEIGHT + V_BACK_PORCH + HEIGHT + V_FRONT_PORCH;
+	localparam [15:0] H_AVAILABLE_BEGIN = HSYNC_WIDTH + H_BACK_PORCH;
+	localparam [15:0] V_AVAILABLE_BEGIN = VSYNC_HEIGHT + V_BACK_PORCH;
+	localparam [15:0] H_AVAILABLE_END = H_AVAILABLE_BEGIN + WIDTH;
+	localparam [15:0] V_AVAILABLE_END = V_AVAILABLE_BEGIN + HEIGHT;
+	localparam [15:0] VRAM_H_AVAILABLE_BEIGN = H_AVAILABLE_BEGIN;
+	localparam [15:0] VRAM_V_AVAILABLE_BEGIN = V_AVAILABLE_BEGIN;
+	localparam [15:0] VRAM_H_AVAILABLE_END = H_AVAILABLE_BEGIN + MEM_WIDTH;
+	localparam [15:0] VRAM_V_AVIALABLE_END = V_AVAILABLE_BEGIN + MEM_HEIGHT;
+	
 	always_comb begin
-		if ( x < HSYNC_WIDTH ) begin
+		if ( x < HSYNC_WIDTH || x >= H_AVAILABLE_END ) begin
 			VGA_HS <= 0;
 		end
 		else begin
 			VGA_HS <= 1;
 		end
 			
-		if ( y < VSYNC_HEIGHT ) begin
+		if ( y < VSYNC_HEIGHT || y >= V_AVAILABLE_END) begin
 			VGA_VS <= 0;
 		end
 		else begin
@@ -60,7 +68,7 @@ module VGA
 			y <= 15'b0;
 			addr <= 15'b0;
 		end
-		else if ( x >= H_BACK_PORCH && x < WIDTH + H_FRONT_PORCH && y >= V_BACK_PORCH && y < HEIGHT + V_FRONT_PORCH ) begin
+		else if ( x >= H_AVAILABLE_BEGIN && x < H_AVAILABLE_END && y >= V_AVAILABLE_BEGIN && y < V_AVAILABLE_END ) begin
 			if ( select_l ) begin
 				VGA_R = { data[ 9: 8], 0 };
 				VGA_G = { data[11:10], 0 };
@@ -75,12 +83,27 @@ module VGA
 	end
 
 	always_ff @( negedge clock ) begin
-		if ( select_l ) begin
-			select_l <= 0;
-			addr = addr + 15'h1;
+		if ( x >= VRAM_H_AVAILABLE_BEIGN && x < VRAM_H_AVAILABLE_END && y >= VRAM_V_AVAILABLE_BEGIN && y < VRAM_V_AVAILABLE_BEGIN + MEM_HEIGHT ) begin
+			if ( select_l ) begin
+				select_l <= 0;
+				addr = addr + 15'h1;
+			end
+			else begin
+				select_l <= 1;
+			end
+		end
+		
+		if ( x == WIDTH_TOTAL && y == HEIGHT_TOTAL ) begin
+			x <= 15'b0;
+			y <= 15'b0;
+			addr <= MEM_ADDR_OFFSET;
+		end
+		else if ( x == WIDTH_TOTAL ) begin
+			x <= 15'b0;
+			y <= y + 15'b1;
 		end
 		else begin
-			select_l <= 1;
+			x <= x + 15'b1;
 		end
 	end
 
