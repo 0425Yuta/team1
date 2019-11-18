@@ -1,5 +1,8 @@
 /db
 /incremental_db
+/simulation
+synthesis
+cadence
 *.bak
 *.txt
 *.rpt
@@ -10,5 +13,10 @@
 *.jdi
 *.sld
 *.qws
+*.cmp
+*_inst.vhd
+*_sopc_*
+*.html
 *smsg
+*.sopcinfo
 !DE10-Lite_pin.qsf.txt
