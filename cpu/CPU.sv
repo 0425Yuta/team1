@@ -1,6 +1,7 @@
 module CPU (
 	input  CLK1_50,
 	input  [1:0] KEY,
+	// TODO: investigate 'VGA_?[?] is stuck at GND'
 	output [3:0] VGA_R,
 	output [3:0] VGA_G,
 	output [3:0] VGA_B,
@@ -19,9 +20,9 @@ module CPU (
 	reg clock_cpu = 1'b1;
 	reg clock_vga = 1'b1;
 	wire clear = KEY[0];
+	wire dummy;
 
-	CLOCK #(.SPLIT(1)) clock_gen_main (.master(CLK1_50),   .clear, .out(clock_cpu));
-	CLOCK #(.SPLIT(2)) clock_gen_vga  (.master(clock_ram), .clear, .out(clock_vga));
+	PLL pll(.refclk(CLK1_50), .rst(clear), .outclk_0(clock_cpu), .outclk_1(clock_vga), .locked(dummy));
 
 	assign clock_ram  = clock_cpu;
 	assign clock_vram = clock_vga;
