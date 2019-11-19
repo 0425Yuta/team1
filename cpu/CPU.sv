@@ -10,12 +10,12 @@ module CPU (
 );
 	wire [15:0]  address_ram;
 	wire [15:0]  address_vram;
-	wire [15:0]  PC;
-	wire [15:0]  opcode;
+	wire [15:0]  address_rom;
 	wire clock_ram;
 	wire clock_vram;
 	wire [15:0]  data_ram;
 	wire [15:0]  data_vram;
+	wire [15:0]  data_rom;
 	wire [15:0]  q_ram;
 	wire [15:0]  q_vram;
 
@@ -40,9 +40,9 @@ module CPU (
 		.q_b(q_vram));
 
 	ROM rom (
-		.address(PC),
+		.address(address_rom),
 		.clock(clock_cpu),
-		.q(opcode));
+		.q(data_rom));
 	
 	VGA vga(
 		.clock(clock_vga),
@@ -54,4 +54,11 @@ module CPU (
 		.VGA_B(VGA_B),
 		.VGA_HS(VGA_HS),
 		.VGA_VS(VGA_VS));
+	ALU alu (
+		.clock(clock_cpu),
+		.address_ram(address_ram),
+		.address_rom(address_rom),
+		.data_ram(data_ram),
+		.data_rom(data_rom)
+	);
 endmodule
