@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-module  PLL_0002(
+module  PLL_CPU_0002(
 
 	// interface 'refclk'
 	input wire refclk,
@@ -16,7 +16,7 @@ module  PLL_0002(
 
 	altera_pll #(
 		.fractional_vco_multiplier("false"),
-		.reference_clock_frequency("100.0 MHz"),
+		.reference_clock_frequency("50.0 MHz"),
 		.operation_mode("direct"),
 		.number_of_clocks(1),
 		.output_clock_frequency0("200.000000 MHz"),

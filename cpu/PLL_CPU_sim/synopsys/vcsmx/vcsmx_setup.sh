@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 18.1 625 linux 2019.11.20.01:37:47
+# ACDS 18.1 625 linux 2019.11.20.01:46:21
 
 # ----------------------------------------
 # vcsmx - auto-generated simulation script
@@ -20,7 +20,7 @@
 # ----------------------------------------
 # This script provides commands to simulate the following IP detected in
 # your Quartus project:
-#     PLL
+#     PLL_CPU
 # 
 # Altera recommends that you source this Quartus-generated IP simulation
 # script from your own customized top-level script, and avoid editing this
@@ -96,7 +96,7 @@
 # 
 # IP SIMULATION SCRIPT
 # ----------------------------------------
-# If PLL is one of several IP cores in your
+# If PLL_CPU is one of several IP cores in your
 # Quartus project, you can generate a simulation script
 # suitable for inclusion in your top-level simulation
 # script by running the following command line:
@@ -107,10 +107,10 @@
 # within the Quartus project, and generate a unified
 # script which supports all the Altera IP within the design.
 # ----------------------------------------
-# ACDS 18.1 625 linux 2019.11.20.01:37:47
+# ACDS 18.1 625 linux 2019.11.20.01:46:21
 # ----------------------------------------
 # initialize variables
-TOP_LEVEL_NAME="PLL"
+TOP_LEVEL_NAME="PLL_CPU"
 QSYS_SIMDIR="./../../"
 QUARTUS_INSTALL_DIR="/home/namachan/intelFPGA_lite/18.1/quartus/"
 SKIP_FILE_COPY=0
@@ -179,7 +179,7 @@ fi
 # ----------------------------------------
 # compile design files in correct order
 if [ $SKIP_COM -eq 0 ]; then
-  vlogan +v2k $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/PLL.vo"
+  vlogan +v2k $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/PLL_CPU.vo"
 fi
 
 # ----------------------------------------
