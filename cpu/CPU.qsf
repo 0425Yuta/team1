@@ -41,7 +41,7 @@ set_global_assignment -name DEVICE 5CGXFC7C7F23C8
 set_global_assignment -name TOP_LEVEL_ENTITY CPU
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "23:36:25  NOVEMBER 10, 2019"
-set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
@@ -53,12 +53,12 @@ set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (SystemVerilog)"
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "SYSTEMVERILOG HDL" -section_id eda_simulation
 set_global_assignment -name SYSTEMVERILOG_FILE VGA.sv
 set_global_assignment -name SYSTEMVERILOG_FILE CPU.sv
 set_global_assignment -name SDC_FILE CPU.sdc
 set_global_assignment -name QIP_FILE RAM.qip
-set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (SystemVerilog)"
-set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "SYSTEMVERILOG HDL" -section_id eda_simulation
 set_global_assignment -name QIP_FILE ROM.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ALU.sv
 set_global_assignment -name QIP_FILE PLL_CPU.qip
