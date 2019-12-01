@@ -1,13 +1,13 @@
 module CPU (
-	input  CLK1_50,
-	input  [1:0] KEY,
-	output LED[9:0],
+	input  logic CLK1_50,
+	input  logic [1:0] KEY,
+	output logic LED[9:0],
 	// TODO: investigate 'VGA_?[?] is stuck at GND'
-	output [3:0] VGA_R,
-	output [3:0] VGA_G,
-	output [3:0] VGA_B,
-	output VGA_HS,
-	output VGA_VS
+	output logic [3:0] VGA_R,
+	output logic [3:0] VGA_G,
+	output logic [3:0] VGA_B,
+	output logic VGA_HS,
+	output logic VGA_VS
 );
 
 	wire [15:0]  address_ram;
@@ -17,7 +17,7 @@ module CPU (
 	wire clock_vram;
 	wire [15:0]  data_ram;
 	wire [15:0]  data_vram;
-	wire [15:0]  data_rom;
+	wire [15:0]  q_rom;
 	wire [15:0]  q_ram;
 	wire [15:0]  q_vram;
 
@@ -44,7 +44,7 @@ module CPU (
 	ROM rom (
 		.address(address_rom),
 		.clock(clock_cpu),
-		.q(data_rom));
+		.q(q_rom));
 	
 	VGA vga(
 		.clock(clock_vga),
@@ -62,6 +62,7 @@ module CPU (
 		.address_ram(address_ram),
 		.address_rom(address_rom),
 		.data_ram(data_ram),
-		.data_rom(data_rom)
+		.q_ram(q_ram),
+		.q_rom(q_rom)
 	);
 endmodule

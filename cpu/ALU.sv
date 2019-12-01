@@ -1,9 +1,10 @@
 module ALU(
-	output [15:0] address_ram,
-	output [15:0] address_rom,
-	input clock,
-	input [15:0] data_ram,
-	input [15:0] data_rom
+	output logic [15:0] address_ram,
+	output logic [15:0] address_rom,
+	input  logic clock,
+	output logic [15:0] data_ram,
+	input  logic [15:0] q_ram,
+	input  logic [15:0] q_rom
 );
 
 	logic[15:0] PC = 15'b0;
@@ -40,8 +41,48 @@ module ALU(
 		NOT   = 16'h0017
 	} INSTRUCTION;
 	
-	always @( posedge clock ) begin
-		address_rom <= PC;
+	enum bit [2:0] {
+		READY,
+		PICKING_2ND_ARG,
+		LOOKING_OPERAND
+	} STATE;
+	
+	logic [2:0] state = READY;
+	logic [15:0] opcode = 15'b0;
+	
+	assign address_rom = PC;
+	
+	// q_ram normaly holds top of stack presented PC.
+	
+	logic [15:0] arg1 = 15'b0;
+	logic [15:0] arg2 = 15'b0;
+	
+	always_ff @( posedge clock ) begin
+		case ( state )
+			READY: begin
+				opcode <= q_rom;
+				case ( q_rom )
+					IGN: begin
+						state <= READY;
+						SP <= SP - 15'b1;
+						PC <= PC + 15'b1;
+					end
+					IMM: begin
+						state <= LOOKING_OPERAND;
+						PC <= PC + 15'b1;
+					end
+				endcase
+			end
+			LOOKING_OPERAND:
+				case ( opcode )
+					IMM: begin
+						state <= READY;
+						address_ram <= SP + 15'b1;
+						data_ram <= q_rom;
+						PC <= 15'b1;
+					end
+				endcase
+		endcase
 	end
 
 endmodule
