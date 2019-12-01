@@ -13,6 +13,8 @@ module ALU(
 	logic[15:0] FPSUB = 15'b0;
 	logic[15:0] JMPSUB = 15'b0;
 	logic[15:0] RETVAL = 15'b0;
+
+	logic[15:0] STACK[1024:0];
 	
 	enum bit [15:0] {
 		IGN   = 16'h0000,
@@ -44,7 +46,9 @@ module ALU(
 	enum bit [2:0] {
 		READY,
 		PICKING_2ND_ARG,
-		LOOKING_OPERAND
+		LOOKING_OPERAND,
+		EXECUTE_INST,
+		FINISHING
 	} STATE;
 	
 	logic [2:0] state = READY;
@@ -71,9 +75,15 @@ module ALU(
 						state <= LOOKING_OPERAND;
 						PC <= PC + 15'b1;
 					end
+					STOM: begin
+						state <= PICKING_2ND_ARG;
+						arg1 <= q_ram;
+						address_ram <= SP - 15'b1;
+						SP <= SP - 15'b1;
+					end
 				endcase
 			end
-			LOOKING_OPERAND:
+			LOOKING_OPERAND: begin
 				case ( opcode )
 					IMM: begin
 						state <= READY;
@@ -82,6 +92,27 @@ module ALU(
 						PC <= 15'b1;
 					end
 				endcase
+			end
+			PICKING_2ND_ARG: begin
+				arg2 <= q_ram;
+				address_ram <= SP - 15'b1;
+				SP <= SP - 15'b1;
+				state <= EXECUTE_INST;
+			end
+			EXECUTE_INST: begin
+				case ( opcode )
+					STOM: begin
+						data_ram <= arg1;
+						address_ram <= arg2;
+						state <= FINISHING;
+					end
+				endcase
+			end
+			FINISHING: begin
+				// q_ramにスタックのトップを読み込み
+				address_ram <= SP;
+				PC <= PC + 15'b1;
+			end
 		endcase
 	end
 
