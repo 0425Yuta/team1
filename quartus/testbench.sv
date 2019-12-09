@@ -7,9 +7,13 @@ module testbench;
 	CPU DUT(.CLK1_50(CLK1_50), .SW(SW), .LEDR(LEDR));
 
 	initial begin
+		SW[9:0] = '{ 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+	end
+
+	initial begin
 		CLK1_50 = 0;
 		#50;
-		repeat(9) begin
+		repeat(30) begin
 			CLK1_50 = 1;
 			#50 CLK1_50 = 0;
 			#50;
