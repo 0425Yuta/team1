@@ -3,7 +3,12 @@
 module CPU(
 	output wire LEDR[9:0],
 	input  wire SW[9:0],
-	input  wire CLK1_50
+	input  wire CLK1_50,
+	output wire VGA_VS,
+	output wire VGA_HS,
+	output reg [2:0] VGA_R = 3'b000,
+	output reg [2:0] VGA_G = 3'b001,
+	output reg [2:0] VGA_B = 3'b010
 );
 	wire clock_cpu;
 	wire clock_vga;
@@ -23,6 +28,18 @@ module CPU(
 		.wren_b(wren_vga),
 		.q_b(q_vga),
 		.data_b(data_vga));
+
+	// DEBUG
+	VGA #(.WIDTH(128), .HEIGHT(3))
+	vga(
+		.q(q_vga),
+		.clock(clock_vga),
+		.VGA_R(VGA_R),
+		.VGA_G(VGA_G),
+		.VGA_B(VGA_B),
+		.HS(VGA_HS),
+		.VS(VGA_VS)
+	);
 
 	always @(posedge clock_cpu) begin
 		LED[0] <= ~LED[0];

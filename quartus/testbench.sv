@@ -3,8 +3,23 @@ module testbench;
 	reg SW[9:0];
 	wire LEDR[9:0];
 	reg CLK1_50;
+	wire [2:0] VGA_R;
+	wire [2:0] VGA_G;
+	wire [2:0] VGA_B;
+	wire VGA_HS;
+	wire VGA_VS;
 
-	CPU DUT(.CLK1_50(CLK1_50), .SW(SW), .LEDR(LEDR));
+
+	CPU DUT(
+		.CLK1_50(CLK1_50),
+		.SW(SW),
+		.LEDR(LEDR),
+		.VGA_R(VGA_R),
+		.VGA_G(VGA_G),
+		.VGA_B(VGA_B),
+		.VGA_HS(VGA_HS),
+		.VGA_VS(VGA_VS)
+	);
 
 	initial begin
 		SW[9:0] = '{ 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
@@ -12,14 +27,14 @@ module testbench;
 
 	initial begin
 		CLK1_50 = 0;
-		#50;
-		repeat(30) begin
+		#5;
+		forever begin
 			CLK1_50 = 1;
-			#50 CLK1_50 = 0;
-			#50;
+			#5 CLK1_50 = 0;
+			#5;
 		end
 	end
 
-	initial #2000
+	initial #2000000
 		$stop;
 endmodule
