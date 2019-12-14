@@ -6,9 +6,9 @@ module CPU(
 	input  wire CLK1_50,
 	output wire VGA_VS,
 	output wire VGA_HS,
-	output reg [2:0] VGA_R = 3'b000,
-	output reg [2:0] VGA_G = 3'b001,
-	output reg [2:0] VGA_B = 3'b010
+	output wire [2:0] VGA_R,
+	output wire [2:0] VGA_G,
+	output wire [2:0] VGA_B
 );
 	wire clock_cpu;
 	wire clock_vga;
@@ -30,7 +30,7 @@ module CPU(
 		.data_b(data_vga));
 
 	// DEBUG
-	VGA #(.WIDTH(128), .HEIGHT(3))
+	VGA
 	vga(
 		.q(q_vga),
 		.clock(clock_vga),

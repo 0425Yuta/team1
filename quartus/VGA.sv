@@ -6,9 +6,9 @@ module VGA #(
 	input wire [15:0] q,
 	output wire VS,
 	output wire HS,
-	output logic [2:0] VGA_R,
-	output logic [2:0] VGA_G,
-	output logic [2:0] VGA_B
+	output wire [2:0] VGA_R,
+	output wire [2:0] VGA_G,
+	output wire [2:0] VGA_B
 );
 	localparam [15:0] H_WAIT_NEWLINE = 15'd16;
 	localparam [15:0] HSYNC_INTERVAL = 15'd96;
@@ -27,6 +27,19 @@ module VGA #(
 	localparam [15:0] H_TOTAL = H_WAIT_START + H_WAIT_NEWLINE   + WIDTH  + HSYNC_INTERVAL;
 	localparam [15:0] V_TOTAL = V_WAIT_START + V_WAIT_NEWSCREEN + HEIGHT + VSYNC_INTERVAL;
 
+	reg[2:0] R = 3'b000;
+	reg[2:0] G = 3'b001;
+	reg[2:0] B = 3'b010;
+
+	wire wren = 
+		x >= HSYNC_INTERVAL + H_WAIT_START &&
+		x < HSYNC_INTERVAL + H_WAIT_START + WIDTH &&
+		y >= VSYNC_INTERVAL + V_WAIT_START &&
+		y < VSYNC_INTERVAL + V_WAIT_START + HEIGHT;
+	assign VGA_R = R & wren;
+	assign VGA_G = G & wren;
+	assign VGA_B = B & wren;
+
 	always_ff @(posedge clock) begin
 		if (x >= H_TOTAL && y >= V_TOTAL) begin
 			x <= 16'd0;
@@ -42,17 +55,17 @@ module VGA #(
 	end
 
 	always_ff @(posedge clock) begin
-		if (VGA_R == 3'b111)
-			VGA_R <= 3'b000;
+		if (R == 3'b111)
+			R <= 3'b000;
 		else
-			VGA_R <= VGA_R + 3'b001;
-		if (VGA_G == 3'b111)
-			VGA_G <= 3'b000;
+			R <= R + 3'b001;
+		if (G == 3'b111)
+			G <= 3'b000;
 		else
-			VGA_G <= VGA_G + 3'b001;
-		if (VGA_B == 3'b111)
-			VGA_B <= 3'b000;
+			G <= G + 3'b001;
+		if (B == 3'b111)
+			B <= 3'b000;
 		else
-			VGA_B <= VGA_B + 3'b001;
+			B <= B + 3'b001;
 	end
 endmodule
