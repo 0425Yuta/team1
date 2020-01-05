@@ -16,10 +16,14 @@ module CPU(
 	reg LED[9:0] = '{ 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
 	assign LEDR[9:0] = LED[9:0];
 
-	wire address_cpu, address_vga, q_cpu, q_vga, wren_cpu, wren_vga, data_cpu, data_vga;
+	wire[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
+	wire[15:0] address_rom, q_rom;
+	wire wren_cpu, wren_vga;
 
 	PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga));
 	RAM ram(
+		.clock_a(clock_cpu),
+		.clock_b(clock_vga),
 		.address_a(address_cpu),
 		.wren_a(wren_cpu),
 		.q_a(q_cpu),
@@ -28,6 +32,11 @@ module CPU(
 		.wren_b(wren_vga),
 		.q_b(q_vga),
 		.data_b(data_vga));
+
+	ROM rom(
+		.clock(clock_cpu),
+		.address(address_rom),
+		.q(q_rom));
 
 	// DEBUG
 	VGA
