@@ -3,9 +3,9 @@ module testbench;
 	reg SW[9:0];
 	wire LEDR[9:0];
 	reg CLK1_50;
-	wire [2:0] VGA_R;
-	wire [2:0] VGA_G;
-	wire [2:0] VGA_B;
+	wire [3:0] VGA_R;
+	wire [3:0] VGA_G;
+	wire [3:0] VGA_B;
 	wire VGA_HS;
 	wire VGA_VS;
 

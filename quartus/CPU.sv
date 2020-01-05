@@ -6,9 +6,9 @@ module CPU(
 	input  wire CLK1_50,
 	output wire VGA_VS,
 	output wire VGA_HS,
-	output wire [2:0] VGA_R,
-	output wire [2:0] VGA_G,
-	output wire [2:0] VGA_B
+	output wire [3:0] VGA_R,
+	output wire [3:0] VGA_G,
+	output wire [3:0] VGA_B
 );
 	wire clock_cpu;
 	wire clock_vga;
