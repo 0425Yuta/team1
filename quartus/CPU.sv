@@ -3,6 +3,7 @@
 module CPU(
 	output wire LEDR[9:0],
 	input  wire SW[9:0],
+	input  wire KEY[1:0],
 	input  wire CLK1_50,
 	output wire VGA_VS,
 	output wire VGA_HS,
@@ -13,15 +14,10 @@ module CPU(
 	wire clock_cpu;
 	wire clock_vga;
 
-	reg LED[9:0] = '{ 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
-	assign LEDR[9:0] = LED[9:0];
-
 	wire[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
 	wire[15:0] address_rom, q_rom;
 	wire wren_cpu, wren_vga;
-
-	PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga));
-	RAM ram(
+PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga)); RAM ram(
 		.clock_a(clock_cpu),
 		.clock_b(clock_vga),
 		.address_a(address_cpu),
@@ -49,14 +45,27 @@ module CPU(
 		.HS(VGA_HS),
 		.VS(VGA_VS)
 	);
+	
+	reg[8:0] clock_count = 8'd0;
+	wire clock_alu = clock_cpu & (clock_count >= 8'd4);
+	wire clock_ctl = clock_cpu & (clock_count < 8'd4);
+	
+	ALU alu(
+		.clock(clock_alu),
+		.address_ram(address_cpu),
+		.q_ram(q_cpu),
+		.data_ram(data_cpu),
+		.address_rom(address_rom),
+		.q_rom(q_rom));
 
-	always @(posedge clock_cpu) begin
-		LED[0] <= ~LED[0];
-	end
-
-	always @(posedge clock_vga) begin
-		LED[1] <= ~LED[1];
-	end
+	CTL ctl(
+		.LED(LEDR),
+		.SW(SW),
+		.KEY(KEY),
+		.clock(clock_ctl),
+		.address_ram(address_cpu),
+		.q_ram(q_cpu),
+		.data_ram(data_cpu));
 
 endmodule
 
