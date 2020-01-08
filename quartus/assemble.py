@@ -31,6 +31,29 @@ tbl = {
         'not': 0x17,
         }
 
+def sep(i):
+    return (i >> 8) & 0xff, (i & 0xff) 
+
+def tohex(binaries):
+    addr = 0
+    for line in binaries:
+        bins = []
+        for word in line:
+            head, tail = sep(word)
+            bins.append(head)
+            bins.append(tail)
+        bytecount = len(bins)
+        addr_head, addr_tail = sep(addr)
+        checksum = bytecount + addr_head + addr_tail
+        data = ''
+        for b in bins:
+            data += '{:02x}'.format(b)
+            checksum += b
+
+        checksum = (~(0xff & checksum) + 1) & 0xff
+        print(':{:02x}{:04x}00{}{:02x}'.format(bytecount, addr, data, checksum))
+    print(':00000001ff')
+        
 # return array of word
 def assemble(lines):
     labels = {}
@@ -54,21 +77,20 @@ def assemble(lines):
         else:
             return None
     
+    binaries = []
     for (opcode, operands) in results:
-        binaries.append(opcode)
-        print(f'opcode: {opcode}')
+        line = []
+        line.append(opcode)
         for operand in operands:
             if operand in labels:
-                binaries.append(labels[operand])
-                print(f'label: {labels[operand]}')
+                line.append(labels[operand])
             else:
-                print(f'imm: {operand}')
-                binaries.append(int(operand))
-
-    return binaries
+                line.append(int(operand))
+        binaries.append(line)
+    
+    tohex(binaries)
+        
 
 if __name__ == '__main__':
     with open(sys.argv[1], 'r') as f:
         result = assemble(f.read().split('\n'))
-        if result:
-            print(result)
