@@ -36,9 +36,10 @@ module VGA #(
 		x < HSYNC_INTERVAL + H_WAIT_START + WIDTH &&
 		y >= VSYNC_INTERVAL + V_WAIT_START &&
 		y < VSYNC_INTERVAL + V_WAIT_START + HEIGHT;
-	assign VGA_R = R & wren;
-	assign VGA_G = G & wren;
-	assign VGA_B = B & wren;
+
+	assign VGA_R = R & {wren, wren, wren, wren};
+	assign VGA_G = G & {wren, wren, wren, wren};
+	assign VGA_B = B & {wren, wren, wren, wren};
 
 	always_ff @(posedge clock) begin
 		if (x >= H_TOTAL && y >= V_TOTAL) begin
