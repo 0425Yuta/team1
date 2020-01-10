@@ -51,6 +51,7 @@ def tohex(binaries):
             checksum += b
 
         checksum = (~(0xff & checksum) + 1) & 0xff
+        addr += len(line)
         print(':{:02x}{:04x}00{}{:02x}'.format(bytecount, addr, data, checksum))
     print(':00000001ff')
         
