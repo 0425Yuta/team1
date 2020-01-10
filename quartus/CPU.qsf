@@ -271,7 +271,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_R
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_VS
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLK1_50
 
-set_global_assignment -name SYSTEMVERILOG_FILE CTL.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ALU.sv
 set_global_assignment -name SYSTEMVERILOG_FILE VGA.sv
 set_global_assignment -name SYSTEMVERILOG_FILE CPU.sv

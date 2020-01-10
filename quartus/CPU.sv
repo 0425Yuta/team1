@@ -58,15 +58,6 @@ PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga)); RAM ram(
 		.address_rom(address_rom),
 		.q_rom(q_rom));
 
-	CTL ctl(
-		.LED(LEDR),
-		.SW(SW),
-		.KEY(KEY),
-		.clock(clock_ctl),
-		.address_ram(address_cpu),
-		.q_ram(q_cpu),
-		.data_ram(data_cpu));
-
 endmodule
 
 `default_nettype wire
