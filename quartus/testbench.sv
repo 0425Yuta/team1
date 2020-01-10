@@ -8,6 +8,8 @@ module testbench;
 	wire [3:0] VGA_B;
 	wire VGA_HS;
 	wire VGA_VS;
+	wire[15:0] OUT1;
+	wire[15:0] OUT2;
 
 
 	CPU DUT(
@@ -18,7 +20,9 @@ module testbench;
 		.VGA_G(VGA_G),
 		.VGA_B(VGA_B),
 		.VGA_HS(VGA_HS),
-		.VGA_VS(VGA_VS)
+		.VGA_VS(VGA_VS),
+		.OUT1(OUT1),
+		.OUT2(OUT2)
 	);
 
 	initial begin

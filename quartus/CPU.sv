@@ -9,15 +9,19 @@ module CPU(
 	output wire VGA_HS,
 	output wire [3:0] VGA_R,
 	output wire [3:0] VGA_G,
-	output wire [3:0] VGA_B
+	output wire [3:0] VGA_B,
+
+	output wire [15:0] OUT1,
+	output wire [15:0] OUT2
 );
 	wire clock_cpu;
 	wire clock_vga;
 
-	wire[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
-	wire[15:0] address_rom, q_rom;
-	wire wren_cpu, wren_vga;
-PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga)); RAM ram(
+	reg[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
+	reg[15:0] address_rom, q_rom;
+	reg wren_cpu, wren_vga;
+	PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga));
+	RAM ram(
 		.clock_a(clock_cpu),
 		.clock_b(clock_vga),
 		.address_a(address_cpu),
@@ -35,8 +39,7 @@ PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga)); RAM ram(
 		.q(q_rom));
 
 	// DEBUG
-	VGA
-	vga(
+	VGA vga(
 		.q(q_vga),
 		.clock(clock_vga),
 		.VGA_R(VGA_R),
@@ -46,16 +49,14 @@ PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga)); RAM ram(
 		.VS(VGA_VS)
 	);
 	
-	reg[8:0] clock_count = 8'd0;
-	wire clock_alu = clock_cpu & (clock_count >= 8'd4);
-	wire clock_ctl = clock_cpu & (clock_count < 8'd4);
-	
 	ALU alu(
-		.clock(clock_alu),
+		.clock(clock_cpu),
 		.address_ram(address_cpu),
 		.q_ram(q_cpu),
 		.data_ram(data_cpu),
 		.address_rom(address_rom),
+		.out1(OUT1),
+		.out2(OUT2),
 		.q_rom(q_rom));
 
 endmodule
