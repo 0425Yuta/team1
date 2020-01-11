@@ -39,6 +39,6 @@ module testbench;
 		end
 	end
 
-	initial #2000000
+	initial #2000
 		$stop;
 endmodule
