@@ -12,7 +12,9 @@ module CPU(
 	output wire [3:0] VGA_B,
 
 	output wire [15:0] OUT1,
-	output wire [15:0] OUT2
+	output wire [15:0] OUT2,
+	output wire [15:0] OUT3,
+	output wire [15:0] OUT4
 );
 	wire clock_cpu;
 	wire clock_vga;
@@ -57,6 +59,8 @@ module CPU(
 		.address_rom(address_rom),
 		.out1(OUT1),
 		.out2(OUT2),
+		.out3(OUT3),
+		.out4(OUT4),
 		.q_rom(q_rom));
 
 endmodule
