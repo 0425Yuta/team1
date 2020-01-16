@@ -20,6 +20,7 @@ enum bit[15:0] {
 } OPCODE;
 
 enum {
+	ERROR,
 	INIT,
 	FETCH,
 	READY
@@ -45,6 +46,8 @@ always_ff @( posedge clock ) begin
 end
 
 always_ff @( posedge clock ) begin
+	if ( state == ERROR ) begin
+	end
 	if ( state == INIT ) begin
 		pc <= 16'b0;
 		state <= FETCH;
@@ -64,6 +67,9 @@ always_ff @( posedge clock ) begin
 					pc <= pc + 16'b1;
 					state <= READY;
 				end
+			end
+			default: begin
+				state <= ERROR;
 			end
 		endcase
 	end
