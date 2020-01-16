@@ -10,7 +10,9 @@ module ALU(
 	output wire[15:0] out1,
 	output wire[15:0] out2,
 	output wire[15:0] out3,
-	output wire[15:0] out4
+	output wire[15:0] out4,
+	output wire[15:0] out5,
+	output wire[15:0] out6
 );
 
 reg[15:0] pc = 16'b0;
@@ -45,16 +47,22 @@ reg[15:0] pc_dump;
 reg[15:0] state_dump;
 reg[15:0] opcode_dump;
 reg[15:0] rom_dump;
+reg[15:0] sp_dump;
+reg[15:0] addr_dump;
 assign out1 = pc_dump;
 assign out2 = state_dump;
 assign out3 = opcode_dump;
 assign out4 = rom_dump;
+assign out5 = sp_dump;
+assign out6 = addr_dump;
 
 always_ff @( posedge clock ) begin
 	pc_dump <= pc;
 	state_dump <= state;
 	opcode_dump <= opcode;
 	rom_dump <= q_rom;
+	sp_dump <= sp;
+	addr_dump <= addr;
 end
 
 always_ff @( posedge clock ) begin
@@ -100,7 +108,7 @@ always_ff @( posedge clock ) begin
 					sp <= sp + 16'b1;
 				end
 				else if ( state == FETCH_OPERAND ) begin
-					state <= FETCH;
+					state <= WAIT_FETCHING;
 					pc <= pc + 16'b1;
 					data <= q_rom;
 					wren <= 1;

@@ -14,14 +14,17 @@ module CPU(
 	output wire [15:0] OUT1,
 	output wire [15:0] OUT2,
 	output wire [15:0] OUT3,
-	output wire [15:0] OUT4
+	output wire [15:0] OUT4,
+	output wire [15:0] OUT5,
+	output wire [15:0] OUT6
 );
 	wire clock_cpu;
 	wire clock_vga;
 
 	reg[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
 	reg[15:0] address_rom, q_rom;
-	reg wren_cpu, wren_vga;
+	wire wren_cpu;
+	reg wren_vga;
 	PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga));
 	RAM ram(
 		.clock_a(clock_cpu),
@@ -56,11 +59,14 @@ module CPU(
 		.address_ram(address_cpu),
 		.q_ram(q_cpu),
 		.data_ram(data_cpu),
+		.wren_ram(wren_cpu),
 		.address_rom(address_rom),
 		.out1(OUT1),
 		.out2(OUT2),
 		.out3(OUT3),
 		.out4(OUT4),
+		.out5(OUT5),
+		.out6(OUT6),
 		.q_rom(q_rom));
 
 endmodule

@@ -12,6 +12,8 @@ module testbench;
 	wire[15:0] STATE;
 	wire[15:0] OPCODE;
 	wire[15:0] ROM;
+	wire[15:0] SP;
+	wire[15:0] ADDR;
 
 
 	CPU DUT(
@@ -26,7 +28,9 @@ module testbench;
 		.OUT1(PC),
 		.OUT2(STATE),
 		.OUT3(OPCODE),
-		.OUT4(ROM)
+		.OUT4(ROM),
+		.OUT5(SP),
+		.OUT6(ADDR)
 	);
 
 	initial begin
