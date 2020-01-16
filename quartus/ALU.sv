@@ -16,14 +16,17 @@ reg[15:0] pc = 16'b0;
 assign address_rom = pc;
 
 enum bit[15:0] {
-	NOP = 16'h18
+	NOP = 16'h18,
+	JMP = 16'h06
 } OPCODE;
 
 enum {
 	ERROR,
 	INIT,
 	FETCH,
-	READY
+	READY,
+	WAIT_FETCHING,
+	APPLY_PC
 } STATE;
 
 reg[15:0] opcode = NOP;
@@ -66,6 +69,18 @@ always_ff @( posedge clock ) begin
 					opcode <= q_rom;
 					pc <= pc + 16'b1;
 					state <= READY;
+				end
+			end
+			JMP: begin
+				if ( state == READY ) begin
+					state <= APPLY_PC;
+				end
+				else if ( state == APPLY_PC ) begin
+					pc <= q_rom;
+					state <= WAIT_FETCHING;
+				end
+				else if ( state == WAIT_FETCHING) begin
+					state <= FETCH;
 				end
 			end
 			default: begin
