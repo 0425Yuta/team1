@@ -55,9 +55,11 @@ always_ff @( posedge clock ) begin
 		pc <= 16'b0;
 		state <= FETCH;
 	end
+	else if ( state == WAIT_FETCHING) begin
+		state <= FETCH;
+	end
 	else if ( state == FETCH ) begin
 		state <= READY;
-		pc <= pc + 16'b1;
 	end
 	else begin
 		if ( state == READY ) begin
@@ -68,7 +70,7 @@ always_ff @( posedge clock ) begin
 				if ( state == READY ) begin
 					opcode <= q_rom;
 					pc <= pc + 16'b1;
-					state <= READY;
+					state <= WAIT_FETCHING;
 				end
 			end
 			JMP: begin
@@ -78,9 +80,6 @@ always_ff @( posedge clock ) begin
 				else if ( state == APPLY_PC ) begin
 					pc <= q_rom;
 					state <= WAIT_FETCHING;
-				end
-				else if ( state == WAIT_FETCHING) begin
-					state <= FETCH;
 				end
 			end
 			default: begin
