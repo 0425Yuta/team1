@@ -58,13 +58,13 @@ always_ff @( posedge clock ) begin
 			opcode = q_rom;
 		end
 		case ( opcode )
-		NOP: begin
-			if ( state == READY ) begin
-				opcode <= q_rom;
-				pc <= pc + 16'b1;
-				state <= READY;
+			NOP: begin
+				if ( state == READY ) begin
+					opcode <= q_rom;
+					pc <= pc + 16'b1;
+					state <= READY;
+				end
 			end
-		end
 		endcase
 	end
 end
