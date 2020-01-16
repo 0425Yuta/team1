@@ -28,36 +28,43 @@ enum {
 reg[15:0] opcode = NOP;
 reg[15:0] state = INIT;
 
-reg[15:0] o1;
-reg[15:0] o2;
-reg[15:0] o3;
-reg[15:0] o4;
-assign out1 = o1;
-assign out2 = o2;
-assign out3 = o3;
-assign out4 = o4;
+reg[15:0] pc_dump;
+reg[15:0] state_dump;
+reg[15:0] opcode_dump;
+reg[15:0] rom_dump;
+assign out1 = pc_dump;
+assign out2 = state_dump;
+assign out3 = opcode_dump;
+assign out4 = rom_dump;
 
 always_ff @( posedge clock ) begin
-	o1 <= pc;
-	o2 <= state;
-	o3 <= opcode;
-	o4 <= q_rom;
+	pc_dump <= pc;
+	state_dump <= state;
+	opcode_dump <= opcode;
+	rom_dump <= q_rom;
 end
 
 always_ff @( posedge clock ) begin
-	if ( opcode == NOP ) begin
-		case ( state )
-			INIT: begin
-				state <= FETCH;
-			end
-			FETCH: begin
-				state <= READY;
-			end
-			READY: begin
+	if ( state == INIT ) begin
+		pc <= 16'b0;
+		state <= FETCH;
+	end
+	else if ( state == FETCH ) begin
+		state <= READY;
+		pc <= pc + 16'b1;
+	end
+	else begin
+		if ( state == READY ) begin
+			opcode = q_rom;
+		end
+		case ( opcode )
+		NOP: begin
+			if ( state == READY ) begin
 				opcode <= q_rom;
 				pc <= pc + 16'b1;
-				state <= FETCH;
+				state <= READY;
 			end
+		end
 		endcase
 	end
 end
