@@ -37,22 +37,19 @@ def sep(i):
 def tohex(binaries):
     addr = 0
     for line in binaries:
-        bins = []
+        data = ''
+        checksum = 0
         for word in line:
             head, tail = sep(word)
-            bins.append(head)
-            bins.append(tail)
-        bytecount = len(bins)
-        addr_head, addr_tail = sep(addr)
-        checksum = bytecount + addr_head + addr_tail
-        data = ''
-        for b in bins:
-            data += '{:02x}'.format(b)
-            checksum += b
+            data += '{:02x}{:02x}'.format(head, tail)
+            checksum += head + tail
 
-        checksum = (~(0xff & checksum) + 1) & 0xff
-        addr += len(line)
+        bytecount = len(line) * 2
+        addr_head, addr_tail = sep(addr)
+        checksum += bytecount + addr_head + addr_tail
+        checksum = (~checksum+1) & 0xff
         print(':{:02x}{:04x}00{}{:02x}'.format(bytecount, addr, data, checksum))
+        addr += len(line)
     print(':00000001ff')
         
 # return array of word
