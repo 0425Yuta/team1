@@ -42,10 +42,9 @@ enum bit[15:0] {
 	FETCH_STACK1,
 	FETCH_STACK2,
 	ERROR = 16'hffff
-} STATE;
+} state = INIT;
 
 reg[15:0] opcode = NOP;
-reg[15:0] state = INIT;
 
 reg[15:0] pc_dump;
 reg[15:0] state_dump;
