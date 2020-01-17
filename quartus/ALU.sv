@@ -6,6 +6,9 @@ module ALU(
 	output wire[15:0] data_ram,
 	output wire[15:0] address_rom,
 	input  wire[15:0] q_rom,
+
+  output wire[15:0] SEG1,
+  output wire[15:0] SEG2,
 	
 	output wire[15:0] out1,
 	output wire[15:0] out2,
@@ -44,6 +47,11 @@ enum bit[15:0] {
 	FETCH_STACK2,
 	ERROR = 16'hffff
 } state = INIT;
+
+reg[15:0] seg1;
+reg[15:0] seg2;
+assign SEG1 = seg1;
+assign SEG2 = seg2;
 
 reg[15:0] pc_dump;
 reg[15:0] state_dump;
