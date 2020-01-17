@@ -35,7 +35,7 @@ module CPU(
 		.address_a(address_cpu),
 		.wren_a(wren_cpu),
 		.q_a(q_cpu),
-		.data_a(data_vga),
+		.data_a(data_cpu),
 		.address_b(address_vga),
 		.wren_b(wren_vga),
 		.q_b(q_vga),
