@@ -73,80 +73,90 @@ reg[15:0] arg1;
 reg[15:0] arg2;
 
 always_ff @( posedge clock ) begin
-	if ( state == ERROR ) begin
-	end
-	if ( state == INIT ) begin
-		pc <= 16'b0;
-		state <= FETCH;
-		wren <= 0;
-	end
-	else if ( state == WAIT_FETCHING) begin
-		pc <= pc + 16'b1;
-		state <= FETCH;
-		wren <= 0;
-	end
-	else if ( state == FETCH ) begin
-		state <= READY;
-		wren <= 0;
-	end
-	else begin
-		if ( state == READY ) begin
-			opcode = q_rom;
+	case ( state )
+		ERROR: begin
 		end
-		case ( opcode )
-			NOP: begin
-				if ( state == READY ) begin
-					state <= WAIT_FETCHING;
-				end
+		INIT: begin
+			pc <= 16'b0;
+			state <= FETCH;
+			wren <= 0;
+		end
+		WAIT_FETCHING: begin
+			pc <= pc + 16'b1;
+			state <= FETCH;
+			wren <= 0;
+		end
+		FETCH: begin
+			state <= READY;
+			wren <= 0;
+		end
+		default: begin
+			if ( state == READY ) begin
+				opcode = q_rom;
 			end
-			JMP: begin
-				if ( state == READY ) begin
-					state <= FETCH_OPERAND;
+			case ( opcode )
+				NOP: begin
+					case ( state )
+						READY: begin
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-				else if ( state == FETCH_OPERAND ) begin
-					pc <= q_rom;
-					state <= WAIT_FETCHING;
+				JMP: begin
+					case ( state )
+						READY: begin
+							state <= FETCH_OPERAND;
+						end
+						FETCH_OPERAND: begin
+							pc <= q_rom;
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-			end
-			IMM: begin
-				if ( state == READY ) begin
-					state <= FETCH_OPERAND;
-					addr <= sp;
-					sp <= sp + 16'b1;
+				IMM: begin
+					case ( state )
+						READY: begin
+							state <= FETCH_OPERAND;
+							addr <= sp;
+							sp <= sp + 16'b1;
+						end
+						FETCH_OPERAND: begin
+							state <= WAIT_FETCHING;
+							pc <= pc + 16'b1;
+							data <= q_rom;
+							wren <= 1;
+						end
+					endcase
 				end
-				else if ( state == FETCH_OPERAND ) begin
-					state <= WAIT_FETCHING;
-					pc <= pc + 16'b1;
-					data <= q_rom;
-					wren <= 1;
+				ADD: begin
+					case ( state )
+						READY: begin
+							addr <= sp;
+							state <= WAIT_FETCHING_STACK;
+						end
+						WAIT_FETCHING_STACK: begin
+							state <= FETCH_STACK1;
+							addr <= sp + 16'b1;
+						end
+						FETCH_STACK1: begin
+							state <= FETCH_STACK2;
+							addr <= sp - 16'b1;
+							sp <= sp - 16'b1;
+							arg1 <= q_ram;
+						end
+						FETCH_STACK2: begin
+							arg2 <= q_ram;
+							data <= arg1 + arg2;
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-			end
-			ADD: begin
-				if ( state == READY ) begin
-					addr <= sp;
-					state <= WAIT_FETCHING_STACK;
+				default: begin
+					state <= ERROR;
 				end
-				else if ( state == WAIT_FETCHING_STACK) begin
-					state <= FETCH_STACK1;
-					addr <= sp + 16'b1;
-				end
-				else if ( state == FETCH_STACK1 ) begin
-					state <= FETCH_STACK2;
-					addr <= sp - 16'b1;
-					sp <= sp - 16'b1;
-					arg1 <= q_ram;
-				end
-				else if ( state == FETCH_STACK2 ) begin
-					arg2 <= q_ram;
-					data <= arg1 + arg2;
-					state <= WAIT_FETCHING;
-				end
-			end
-			default: begin
-				state <= ERROR;
-			end
-		endcase
-	end
+			endcase
+		end
+	endcase
 end
 
 endmodule
