@@ -42,6 +42,8 @@ enum bit[15:0] {
 	FETCH,
 	READY,
 	FETCH_OPERAND,
+	WAIT_FETCHING_OPERAND,
+	WAIT_FETCHING_OPERAND2,
 	WAIT_FETCHING_STACK,
 	FETCH_STACK1,
 	FETCH_STACK2,
@@ -88,9 +90,7 @@ always_ff @( posedge clock ) begin
 			wren <= 0;
 		end
 		WAIT_FETCHING: begin
-			pc <= pc + 16'b1;
 			state <= FETCH;
-			wren <= 0;
 		end
 		FETCH: begin
 			state <= READY;
@@ -104,6 +104,7 @@ always_ff @( posedge clock ) begin
 				NOP: begin
 					case ( state )
 						READY: begin
+							pc <= pc + 16'b1;
 							state <= WAIT_FETCHING;
 						end
 					endcase
@@ -111,6 +112,13 @@ always_ff @( posedge clock ) begin
 				JMP: begin
 					case ( state )
 						READY: begin
+							pc <= pc + 16'b1;
+							state <= WAIT_FETCHING_OPERAND;
+						end
+						WAIT_FETCHING_OPERAND: begin
+							state <= WAIT_FETCHING_OPERAND2;
+						end
+						WAIT_FETCHING_OPERAND2: begin
 							state <= FETCH_OPERAND;
 						end
 						FETCH_OPERAND: begin
@@ -122,13 +130,20 @@ always_ff @( posedge clock ) begin
 				IMM: begin
 					case ( state )
 						READY: begin
+							state <= WAIT_FETCHING_OPERAND;
+							pc <= pc + 16'b1;
+						end
+						WAIT_FETCHING_OPERAND: begin
+							state <= WAIT_FETCHING_OPERAND2;
+						end
+						WAIT_FETCHING_OPERAND2: begin
 							state <= FETCH_OPERAND;
-							addr <= sp;
-							sp <= sp + 16'b1;
 						end
 						FETCH_OPERAND: begin
 							state <= WAIT_FETCHING;
 							pc <= pc + 16'b1;
+							sp <= sp + 16'b1;
+							addr <= sp;
 							data <= q_rom;
 							wren <= 1;
 						end
@@ -137,22 +152,25 @@ always_ff @( posedge clock ) begin
 				ADD: begin
 					case ( state )
 						READY: begin
-							addr <= sp;
+							addr <= sp - 16'h1;
+							wren <= 0;
 							state <= WAIT_FETCHING_STACK;
 						end
 						WAIT_FETCHING_STACK: begin
 							state <= FETCH_STACK1;
-							addr <= sp + 16'b1;
+							addr <= sp - 16'h2;
 						end
 						FETCH_STACK1: begin
 							state <= FETCH_STACK2;
-							addr <= sp - 16'b1;
-							sp <= sp - 16'b1;
 							arg1 <= q_ram;
 						end
 						FETCH_STACK2: begin
-							arg2 <= q_ram;
-							data <= arg1 + arg2;
+							sp <= sp - 16'h2;
+							pc <= pc + 16'b1;
+							addr <= sp - 16'h2;
+							data <= arg1 + q_ram;
+							seg1 <= arg1 + q_ram;
+							wren <= 1;
 							state <= WAIT_FETCHING;
 						end
 					endcase
