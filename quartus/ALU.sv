@@ -25,12 +25,13 @@ reg[15:0] sp = 16'h0000;
 reg wren = 0;
 assign wren_ram = wren;
 
-enum bit[15:0] {
+typedef enum bit[15:0] {
 	NOP = 16'h18,
 	JMP = 16'h06,
 	IMM = 16'h01,
 	ADD = 16'h0b
 } OPCODE;
+OPCODE opcode = NOP;
 
 enum bit[15:0] {
 	INIT,
@@ -42,10 +43,7 @@ enum bit[15:0] {
 	FETCH_STACK1,
 	FETCH_STACK2,
 	ERROR = 16'hffff
-} STATE;
-
-reg[15:0] opcode = NOP;
-reg[15:0] state = INIT;
+} state = INIT;
 
 reg[15:0] pc_dump;
 reg[15:0] state_dump;
@@ -92,7 +90,7 @@ always_ff @( posedge clock ) begin
 		end
 		default: begin
 			if ( state == READY ) begin
-				opcode = q_rom;
+				opcode = OPCODE'(q_rom);
 			end
 			case ( opcode )
 				NOP: begin
