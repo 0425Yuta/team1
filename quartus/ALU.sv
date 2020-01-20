@@ -29,11 +29,18 @@ reg wren = 0;
 assign wren_ram = wren;
 
 typedef enum bit[15:0] {
-	NOP = 16'h0000,
-	JMP = 16'h1000,
-	IMM = 16'h0002,
-	ADD = 16'h2000,
-	SUB = 16'h2001
+	NOP  = 16'h0000,
+	JMP  = 16'h1000,
+	IMM  = 16'h0002,
+	ADD  = 16'h2000,
+	SUB  = 16'h2001,
+	GRET = 16'h2005,
+	LESS = 16'h2006,
+	EQ   = 16'h2007,
+	NEQ  = 16'h2008,
+	AND  = 16'h2009,
+	OR   = 16'h200a,
+	XOR  = 16'h200b
 } OPCODE;
 OPCODE opcode = NOP;
 
@@ -150,7 +157,7 @@ always_ff @( posedge clock ) begin
 						end
 					endcase
 				end
-				ADD, SUB: begin
+				ADD, SUB, GRET, LESS, EQ, NEQ, AND, OR, XOR: begin
 					case ( state )
 						READY: begin
 							addr <= sp - 16'h1;
@@ -175,6 +182,39 @@ always_ff @( posedge clock ) begin
 								end
 								SUB: begin
 									data <= q_ram - arg1;
+								end
+								GRET: begin
+									if ( q_ram > arg1 )
+										data <= 1;
+									else
+										data <= 0;
+								end
+								LESS: begin
+									if ( q_ram < arg1 )
+										data <= 1;
+									else
+										data <= 0;
+								end
+								EQ: begin
+									if ( q_ram == arg1 )
+										data <= 1;
+									else
+										data <= 0;
+								end
+								NEQ: begin
+									if ( q_ram != arg1 )
+										data <= 1;
+									else
+										data <= 0;
+								end
+								AND: begin
+									data <= q_ram & arg1;
+								end
+								OR: begin
+									data <= q_ram | arg1;
+								end
+								XOR: begin
+									data <= q_ram ^ arg2;
 								end
 							endcase
 							wren <= 1;
