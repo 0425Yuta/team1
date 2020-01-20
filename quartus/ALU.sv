@@ -32,7 +32,8 @@ typedef enum bit[15:0] {
 	NOP = 16'h0000,
 	JMP = 16'h1000,
 	IMM = 16'h0002,
-	ADD = 16'h2000
+	ADD = 16'h2000,
+	SUB = 16'h2001
 } OPCODE;
 OPCODE opcode = NOP;
 
@@ -149,7 +150,7 @@ always_ff @( posedge clock ) begin
 						end
 					endcase
 				end
-				ADD: begin
+				ADD, SUB: begin
 					case ( state )
 						READY: begin
 							addr <= sp - 16'h1;
@@ -168,8 +169,16 @@ always_ff @( posedge clock ) begin
 							sp <= sp - 16'h2;
 							pc <= pc + 16'b1;
 							addr <= sp - 16'h2;
-							data <= arg1 + q_ram;
-							seg1 <= arg1 + q_ram;
+							case ( opcode )
+								ADD: begin
+									data <= arg1 + q_ram;
+									seg1 <= arg1 + q_ram;
+								end
+								SUB: begin
+									data <= arg1 - q_ram;
+									seg1 <= arg1 - q_ram;
+								end
+							endcase
 							wren <= 1;
 							state <= WAIT_FETCHING;
 						end
