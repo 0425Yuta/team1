@@ -166,7 +166,7 @@ always_ff @( posedge clock ) begin
 							arg1 <= q_ram;
 						end
 						FETCH_STACK2: begin
-							sp <= sp - 16'h2;
+							sp <= sp - 16'h1;
 							pc <= pc + 16'b1;
 							addr <= sp - 16'h2;
 							case ( opcode )
