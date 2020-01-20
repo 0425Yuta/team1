@@ -29,10 +29,10 @@ reg wren = 0;
 assign wren_ram = wren;
 
 typedef enum bit[15:0] {
-	NOP = 16'h18,
-	JMP = 16'h06,
-	IMM = 16'h01,
-	ADD = 16'h0b
+	NOP = 16'h0000,
+	JMP = 16'h1000,
+	IMM = 16'h0002,
+	ADD = 16'h2000
 } OPCODE;
 OPCODE opcode = NOP;
 
