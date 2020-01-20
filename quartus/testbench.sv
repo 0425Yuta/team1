@@ -14,6 +14,8 @@ module testbench;
 	wire[15:0] ROM;
 	wire[15:0] SP;
 	wire[15:0] ADDR;
+	wire[15:0] SEG1;
+	wire[15:0] SEG2;
 
 
 	CPU DUT(
@@ -30,7 +32,9 @@ module testbench;
 		.OUT3(OPCODE),
 		.OUT4(ROM),
 		.OUT5(SP),
-		.OUT6(ADDR)
+		.OUT6(ADDR),
+		.SEG1(SEG1),
+		.SEG2(SEG2)
 	);
 
 	initial begin

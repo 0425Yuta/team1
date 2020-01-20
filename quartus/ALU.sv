@@ -6,6 +6,9 @@ module ALU(
 	output wire[15:0] data_ram,
 	output wire[15:0] address_rom,
 	input  wire[15:0] q_rom,
+
+  output wire[15:0] SEG1,
+  output wire[15:0] SEG2,
 	
 	output wire[15:0] out1,
 	output wire[15:0] out2,
@@ -25,11 +28,13 @@ reg[15:0] sp = 16'h0000;
 reg wren = 0;
 assign wren_ram = wren;
 
-enum bit[15:0] {
+typedef enum bit[15:0] {
 	NOP = 16'h18,
 	JMP = 16'h06,
-	IMM = 16'h01
+	IMM = 16'h01,
+	ADD = 16'h0b
 } OPCODE;
+OPCODE opcode = NOP;
 
 enum bit[15:0] {
 	INIT,
@@ -37,11 +42,18 @@ enum bit[15:0] {
 	FETCH,
 	READY,
 	FETCH_OPERAND,
+	WAIT_FETCHING_OPERAND,
+	WAIT_FETCHING_OPERAND2,
+	WAIT_FETCHING_STACK,
+	FETCH_STACK1,
+	FETCH_STACK2,
 	ERROR = 16'hffff
-} STATE;
+} state = INIT;
 
-reg[15:0] opcode = NOP;
-reg[15:0] state = INIT;
+reg[15:0] seg1;
+reg[15:0] seg2;
+assign SEG1 = seg1;
+assign SEG2 = seg2;
 
 reg[15:0] pc_dump;
 reg[15:0] state_dump;
@@ -65,60 +77,110 @@ always_ff @( posedge clock ) begin
 	addr_dump <= addr;
 end
 
+reg[15:0] arg1;
+reg[15:0] arg2;
+
 always_ff @( posedge clock ) begin
-	if ( state == ERROR ) begin
-	end
-	if ( state == INIT ) begin
-		pc <= 16'b0;
-		state <= FETCH;
-		wren <= 0;
-	end
-	else if ( state == WAIT_FETCHING) begin
-		pc <= pc + 16'b1;
-		state <= FETCH;
-		wren <= 0;
-	end
-	else if ( state == FETCH ) begin
-		state <= READY;
-		wren <= 0;
-	end
-	else begin
-		if ( state == READY ) begin
-			opcode = q_rom;
+	case ( state )
+		ERROR: begin
 		end
-		case ( opcode )
-			NOP: begin
-				if ( state == READY ) begin
-					state <= WAIT_FETCHING;
-				end
+		INIT: begin
+			pc <= 16'b0;
+			state <= FETCH;
+			wren <= 0;
+		end
+		WAIT_FETCHING: begin
+			state <= FETCH;
+		end
+		FETCH: begin
+			state <= READY;
+			wren <= 0;
+		end
+		default: begin
+			if ( state == READY ) begin
+				opcode = OPCODE'(q_rom);
 			end
-			JMP: begin
-				if ( state == READY ) begin
-					state <= FETCH_OPERAND;
+			case ( opcode )
+				NOP: begin
+					case ( state )
+						READY: begin
+							pc <= pc + 16'b1;
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-				else if ( state == FETCH_OPERAND ) begin
-					pc <= q_rom;
-					state <= WAIT_FETCHING;
+				JMP: begin
+					case ( state )
+						READY: begin
+							pc <= pc + 16'b1;
+							state <= WAIT_FETCHING_OPERAND;
+						end
+						WAIT_FETCHING_OPERAND: begin
+							state <= WAIT_FETCHING_OPERAND2;
+						end
+						WAIT_FETCHING_OPERAND2: begin
+							state <= FETCH_OPERAND;
+						end
+						FETCH_OPERAND: begin
+							pc <= q_rom;
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-			end
-			IMM: begin
-				if ( state == READY ) begin
-					state <= FETCH_OPERAND;
-					addr <= sp;
-					sp <= sp + 16'b1;
+				IMM: begin
+					case ( state )
+						READY: begin
+							state <= WAIT_FETCHING_OPERAND;
+							pc <= pc + 16'b1;
+						end
+						WAIT_FETCHING_OPERAND: begin
+							state <= WAIT_FETCHING_OPERAND2;
+						end
+						WAIT_FETCHING_OPERAND2: begin
+							state <= FETCH_OPERAND;
+						end
+						FETCH_OPERAND: begin
+							state <= WAIT_FETCHING;
+							pc <= pc + 16'b1;
+							sp <= sp + 16'b1;
+							addr <= sp;
+							data <= q_rom;
+							wren <= 1;
+						end
+					endcase
 				end
-				else if ( state == FETCH_OPERAND ) begin
-					state <= WAIT_FETCHING;
-					pc <= pc + 16'b1;
-					data <= q_rom;
-					wren <= 1;
+				ADD: begin
+					case ( state )
+						READY: begin
+							addr <= sp - 16'h1;
+							wren <= 0;
+							state <= WAIT_FETCHING_STACK;
+						end
+						WAIT_FETCHING_STACK: begin
+							state <= FETCH_STACK1;
+							addr <= sp - 16'h2;
+						end
+						FETCH_STACK1: begin
+							state <= FETCH_STACK2;
+							arg1 <= q_ram;
+						end
+						FETCH_STACK2: begin
+							sp <= sp - 16'h2;
+							pc <= pc + 16'b1;
+							addr <= sp - 16'h2;
+							data <= arg1 + q_ram;
+							seg1 <= arg1 + q_ram;
+							wren <= 1;
+							state <= WAIT_FETCHING;
+						end
+					endcase
 				end
-			end
-			default: begin
-				state <= ERROR;
-			end
-		endcase
-	end
+				default: begin
+					state <= ERROR;
+				end
+			endcase
+		end
+	endcase
 end
 
 endmodule

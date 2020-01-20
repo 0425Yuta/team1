@@ -3,7 +3,7 @@ nop; とりま
 back:
 nop;
 nop;
-imm 0
-imm 2
+imm 255
+imm 1023
 add
 jmp back

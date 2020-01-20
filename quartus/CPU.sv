@@ -16,7 +16,10 @@ module CPU(
 	output wire [15:0] OUT3,
 	output wire [15:0] OUT4,
 	output wire [15:0] OUT5,
-	output wire [15:0] OUT6
+	output wire [15:0] OUT6,
+
+  output wire [15:0] SEG1,
+  output wire [15:0] SEG2
 );
 	wire clock_cpu;
 	wire clock_vga;
@@ -32,7 +35,7 @@ module CPU(
 		.address_a(address_cpu),
 		.wren_a(wren_cpu),
 		.q_a(q_cpu),
-		.data_a(data_vga),
+		.data_a(data_cpu),
 		.address_b(address_vga),
 		.wren_b(wren_vga),
 		.q_b(q_vga),
@@ -67,6 +70,8 @@ module CPU(
 		.out4(OUT4),
 		.out5(OUT5),
 		.out6(OUT6),
+    .SEG1(SEG1),
+    .SEG2(SEG2),
 		.q_rom(q_rom));
 
 endmodule
