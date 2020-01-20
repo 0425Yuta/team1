@@ -40,7 +40,8 @@ typedef enum bit[15:0] {
 	NEQ  = 16'h2008,
 	AND  = 16'h2009,
 	OR   = 16'h200a,
-	XOR  = 16'h200b
+	XOR  = 16'h200b,
+	NOT  = 16'h200c
 } OPCODE;
 OPCODE opcode = NOP;
 
@@ -154,6 +155,24 @@ always_ff @( posedge clock ) begin
 							addr <= sp;
 							data <= q_rom;
 							wren <= 1;
+						end
+					endcase
+				end
+				NOT: begin
+					case ( state )
+						READY: begin
+							state <= WAIT_FETCHING_STACK;
+							addr <= sp - 16'h1;
+							wren <= 0;
+						end
+						WAIT_FETCHING_STACK: begin
+							state <= FETCH_STACK1;
+						end
+						FETCH_STACK1: begin
+							wren <= 1;
+							pc <= pc + 16'h1;
+							data <= q_ram ^ 16'hffff;
+							state <= WAIT_FETCHING;
 						end
 					endcase
 				end
