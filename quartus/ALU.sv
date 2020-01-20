@@ -172,11 +172,9 @@ always_ff @( posedge clock ) begin
 							case ( opcode )
 								ADD: begin
 									data <= arg1 + q_ram;
-									seg1 <= arg1 + q_ram;
 								end
 								SUB: begin
 									data <= arg1 - q_ram;
-									seg1 <= arg1 - q_ram;
 								end
 							endcase
 							wren <= 1;
