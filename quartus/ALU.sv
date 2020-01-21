@@ -31,6 +31,7 @@ assign wren_ram = wren;
 typedef enum bit[15:0] {
 	NOP  = 16'h0000,
 	JMP  = 16'h1000,
+	BRA  = 16'h1001,
 	IMM  = 16'h0002,
 	ADD  = 16'h2000,
 	SUB  = 16'h2001,
@@ -43,7 +44,7 @@ typedef enum bit[15:0] {
 	XOR  = 16'h200b,
 	NOT  = 16'h200c
 } OPCODE;
-OPCODE opcode = NOP;
+OPCODE opcode;
 
 enum bit[15:0] {
 	INIT,
@@ -113,6 +114,7 @@ always_ff @( posedge clock ) begin
 				NOP: begin
 					case ( state )
 						READY: begin
+							$display("nop at %h", pc);
 							pc <= pc + 16'b1;
 							state <= WAIT_FETCHING;
 						end
@@ -139,16 +141,20 @@ always_ff @( posedge clock ) begin
 				IMM: begin
 					case ( state )
 						READY: begin
+							$display("imm at %h", pc);
 							state <= WAIT_FETCHING_OPERAND;
 							pc <= pc + 16'b1;
 						end
 						WAIT_FETCHING_OPERAND: begin
+							$display("fetch1");
 							state <= WAIT_FETCHING_OPERAND2;
 						end
 						WAIT_FETCHING_OPERAND2: begin
+							$display("fetch2");
 							state <= FETCH_OPERAND;
 						end
 						FETCH_OPERAND: begin
+							$display("apply %h <- %h", sp, q_rom);
 							state <= WAIT_FETCHING;
 							pc <= pc + 16'b1;
 							sp <= sp + 16'b1;
@@ -172,6 +178,33 @@ always_ff @( posedge clock ) begin
 							wren <= 1;
 							pc <= pc + 16'h1;
 							data <= q_ram ^ 16'hffff;
+							state <= WAIT_FETCHING;
+						end
+					endcase
+				end
+				BRA: begin
+					case ( state )
+						READY: begin
+							addr <= sp - 16'h1;
+							wren <= 0;
+							state <= WAIT_FETCHING_STACK;
+						end
+						WAIT_FETCHING_STACK: begin
+							state <= FETCH_STACK1;
+							addr <= sp - 16'h2;
+						end
+						FETCH_STACK1: begin
+							state <= FETCH_STACK2;
+							arg1 <= q_ram;
+						end
+						FETCH_STACK2: begin
+							sp <= sp - 16'h2;
+							if ( arg1 != 0 ) begin
+								pc <= q_ram;
+							end
+							else begin
+								pc <= pc + 16'b1;
+							end
 							state <= WAIT_FETCHING;
 						end
 					endcase
