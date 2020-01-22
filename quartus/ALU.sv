@@ -50,15 +50,15 @@ OPCODE opcode;
 
 enum bit[15:0] {
 	INIT,
-	WAIT_FETCHING,
-	FETCH,
+	PRE_FETCH_OPCODE,
+	FETCH_OPCODE,
 	READY,
+	PRE_FETCH_OPERAND,
 	FETCH_OPERAND,
-	WAIT_FETCHING_OPERAND,
-	WAIT_FETCHING_OPERAND2,
-	WAIT_FETCHING_STACK,
-	FETCH_STACK1,
-	FETCH_STACK2,
+	FETCHED_OPERAND,
+	PRE_FETCH_STACK,
+	FETCH_STACK,
+	FETCHED_STACK,
 	ERROR = 16'hffff
 } state = INIT;
 
@@ -98,13 +98,13 @@ always_ff @( posedge clock ) begin
 		end
 		INIT: begin
 			pc <= 16'b0;
-			state <= FETCH;
+			state <= FETCH_OPCODE;
 			wren <= 0;
 		end
-		WAIT_FETCHING: begin
-			state <= FETCH;
+		PRE_FETCH_OPCODE: begin
+			state <= FETCH_OPCODE;
 		end
-		FETCH: begin
+		FETCH_OPCODE: begin
 			state <= READY;
 			wren <= 0;
 		end
@@ -118,7 +118,7 @@ always_ff @( posedge clock ) begin
 						READY: begin
 							$display("nop at %h", pc);
 							pc <= pc + 16'b1;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
@@ -127,7 +127,7 @@ always_ff @( posedge clock ) begin
 						READY: begin
 							pc <= pc + 16'h1;
 							sp <= sp - 16'h1;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
@@ -135,17 +135,17 @@ always_ff @( posedge clock ) begin
 					case ( state )
 						READY: begin
 							pc <= pc + 16'b1;
-							state <= WAIT_FETCHING_OPERAND;
+							state <= PRE_FETCH_OPERAND;
 						end
-						WAIT_FETCHING_OPERAND: begin
-							state <= WAIT_FETCHING_OPERAND2;
-						end
-						WAIT_FETCHING_OPERAND2: begin
+						PRE_FETCH_OPERAND: begin
 							state <= FETCH_OPERAND;
 						end
 						FETCH_OPERAND: begin
+							state <= FETCHED_OPERAND;
+						end
+						FETCHED_OPERAND: begin
 							pc <= q_rom;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
@@ -153,20 +153,20 @@ always_ff @( posedge clock ) begin
 					case ( state )
 						READY: begin
 							$display("imm at %h", pc);
-							state <= WAIT_FETCHING_OPERAND;
+							state <= PRE_FETCH_OPERAND;
 							pc <= pc + 16'b1;
 						end
-						WAIT_FETCHING_OPERAND: begin
+						PRE_FETCH_OPERAND: begin
 							$display("fetch1");
-							state <= WAIT_FETCHING_OPERAND2;
-						end
-						WAIT_FETCHING_OPERAND2: begin
-							$display("fetch2");
 							state <= FETCH_OPERAND;
 						end
 						FETCH_OPERAND: begin
+							$display("fetch2");
+							state <= FETCHED_OPERAND;
+						end
+						FETCHED_OPERAND: begin
 							$display("apply %h <- %h", sp, q_rom);
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 							pc <= pc + 16'b1;
 							sp <= sp + 16'b1;
 							addr <= sp;
@@ -178,39 +178,39 @@ always_ff @( posedge clock ) begin
 				NOT: begin
 					case ( state )
 						READY: begin
-							state <= WAIT_FETCHING_STACK;
+							state <= PRE_FETCH_STACK;
 							addr <= sp - 16'h1;
 							wren <= 0;
 						end
-						WAIT_FETCHING_STACK: begin
-							state <= FETCH_STACK1;
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
 						end
-						FETCH_STACK1: begin
+						FETCH_STACK: begin
 							wren <= 1;
 							pc <= pc + 16'h1;
 							data <= q_ram ^ 16'hffff;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
 				CP: begin
 					case ( state )
 						READY: begin
-							state <= WAIT_FETCHING_STACK;
+							state <= PRE_FETCH_STACK;
 							addr <= sp - 16'h1;
 							wren <= 0;
 						end
-						WAIT_FETCHING_STACK: begin
-							state <= FETCH_STACK1;
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
 						end
-						FETCH_STACK1: begin
+						FETCH_STACK: begin
 							$display("cp");
 							wren <= 1;
 							addr <= sp;
 							sp <= sp + 16'h1;
 							pc <= pc + 16'h1;
 							data <= q_ram;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
@@ -219,17 +219,17 @@ always_ff @( posedge clock ) begin
 						READY: begin
 							addr <= sp - 16'h1;
 							wren <= 0;
-							state <= WAIT_FETCHING_STACK;
+							state <= PRE_FETCH_STACK;
 						end
-						WAIT_FETCHING_STACK: begin
-							state <= FETCH_STACK1;
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
 							addr <= sp - 16'h2;
 						end
-						FETCH_STACK1: begin
-							state <= FETCH_STACK2;
+						FETCH_STACK: begin
+							state <= FETCHED_STACK;
 							arg1 <= q_ram;
 						end
-						FETCH_STACK2: begin
+						FETCHED_STACK: begin
 							sp <= sp - 16'h2;
 							if ( arg1 != 0 ) begin
 								pc <= q_ram;
@@ -237,7 +237,7 @@ always_ff @( posedge clock ) begin
 							else begin
 								pc <= pc + 16'b1;
 							end
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
@@ -246,17 +246,17 @@ always_ff @( posedge clock ) begin
 						READY: begin
 							addr <= sp - 16'h1;
 							wren <= 0;
-							state <= WAIT_FETCHING_STACK;
+							state <= PRE_FETCH_STACK;
 						end
-						WAIT_FETCHING_STACK: begin
-							state <= FETCH_STACK1;
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
 							addr <= sp - 16'h2;
 						end
-						FETCH_STACK1: begin
-							state <= FETCH_STACK2;
+						FETCH_STACK: begin
+							state <= FETCHED_STACK;
 							arg1 <= q_ram;
 						end
-						FETCH_STACK2: begin
+						FETCHED_STACK: begin
 							sp <= sp - 16'h1;
 							pc <= pc + 16'b1;
 							addr <= sp - 16'h2;
@@ -302,7 +302,7 @@ always_ff @( posedge clock ) begin
 								end
 							endcase
 							wren <= 1;
-							state <= WAIT_FETCHING;
+							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
 				end
