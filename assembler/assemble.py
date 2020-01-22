@@ -74,6 +74,7 @@ def assemble(lines):
             results.append((tbl[tokens[0]], tokens[1:]))
             pos += len(tokens)
         else:
+            print(f'Illegal tokens {tokens}')
             return None
     
     binaries = []
