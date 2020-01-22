@@ -30,6 +30,7 @@ assign wren_ram = wren;
 
 typedef enum bit[15:0] {
 	NOP  = 16'h0000,
+	CP   = 16'h0007,
 	JMP  = 16'h1000,
 	BRA  = 16'h1001,
 	IMM  = 16'h0002,
@@ -178,6 +179,27 @@ always_ff @( posedge clock ) begin
 							wren <= 1;
 							pc <= pc + 16'h1;
 							data <= q_ram ^ 16'hffff;
+							state <= WAIT_FETCHING;
+						end
+					endcase
+				end
+				CP: begin
+					case ( state )
+						READY: begin
+							state <= WAIT_FETCHING_STACK;
+							addr <= sp - 16'h1;
+							wren <= 0;
+						end
+						WAIT_FETCHING_STACK: begin
+							state <= FETCH_STACK1;
+						end
+						FETCH_STACK1: begin
+							$display("cp");
+							wren <= 1;
+							addr <= sp;
+							sp <= sp + 16'h1;
+							pc <= pc + 16'h1;
+							data <= q_ram;
 							state <= WAIT_FETCHING;
 						end
 					endcase
