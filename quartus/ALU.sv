@@ -35,6 +35,12 @@ reg[15:0] fp = STACK_BEGIN;
 reg wren = 0;
 assign wren_ram = wren;
 
+reg[15:0] mula, mulb;
+
+wire[15:0] mul_out;
+assign mul_out = mula * mulb;
+
+
 typedef enum bit[15:0] {
 	NOP   = 16'h0000,
 	IGN   = 16'h0001,
@@ -49,6 +55,7 @@ typedef enum bit[15:0] {
 	SYNC  = 16'h1006,
 	ADD   = 16'h2000,
 	SUB   = 16'h2001,
+	MUL   = 16'h2002,
 	GRET  = 16'h2005,
 	LESS  = 16'h2006,
 	EQ    = 16'h2007,
@@ -307,6 +314,36 @@ always_ff @( posedge clock ) begin
 								pc <= pc + 16'b1;
 							end
 							state <= PRE_FETCH_OPCODE;
+						end
+					endcase
+				end
+				MUL: begin
+					case ( state )
+						READY: begin
+							addr <= sp - 16'h1;
+							wren <= 0;
+							state <= PRE_FETCH_STACK;
+						end
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
+							addr <= sp - 16'h2;
+						end
+						FETCH_STACK: begin
+							state <= FETCHED_STACK;
+							arg1 <= q_ram;
+						end
+						FETCHED_STACK: begin
+							mula <= q_ram;
+							mulb <= arg1;
+							state <= POST_FETCH_STACK;
+						end
+						POST_FETCH_STACK: begin
+							state <= PRE_FETCH_OPCODE;
+							sp <= sp - 16'h1;
+							pc <= pc + 16'b1;
+							addr <= sp - 16'h2;
+							wren <= 1;
+							data <= mul_out;
 						end
 					endcase
 				end
