@@ -116,7 +116,6 @@ always_ff @( posedge clock ) begin
 				NOP: begin
 					case ( state )
 						READY: begin
-							$display("nop at %h", pc);
 							pc <= pc + 16'b1;
 							state <= PRE_FETCH_OPCODE;
 						end
@@ -152,20 +151,16 @@ always_ff @( posedge clock ) begin
 				IMM: begin
 					case ( state )
 						READY: begin
-							$display("imm at %h", pc);
 							state <= PRE_FETCH_OPERAND;
 							pc <= pc + 16'b1;
 						end
 						PRE_FETCH_OPERAND: begin
-							$display("fetch1");
 							state <= FETCH_OPERAND;
 						end
 						FETCH_OPERAND: begin
-							$display("fetch2");
 							state <= FETCHED_OPERAND;
 						end
 						FETCHED_OPERAND: begin
-							$display("apply %h <- %h", sp, q_rom);
 							state <= PRE_FETCH_OPCODE;
 							pc <= pc + 16'b1;
 							sp <= sp + 16'b1;
@@ -204,7 +199,6 @@ always_ff @( posedge clock ) begin
 							state <= FETCH_STACK;
 						end
 						FETCH_STACK: begin
-							$display("cp");
 							wren <= 1;
 							addr <= sp;
 							sp <= sp + 16'h1;
