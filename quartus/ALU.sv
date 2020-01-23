@@ -238,7 +238,7 @@ always_ff @( posedge clock ) begin
 							arg1 <= q_ram;
 						end
 						FETCHED_STACK: begin
-							sp <= sp - 16'h2;
+							sp <= sp - 16'h1;
 							pc <= pc + 16'h1;
 							wren <= 1;
 							state <= PRE_FETCH_OPCODE;
