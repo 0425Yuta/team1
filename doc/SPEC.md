@@ -49,6 +49,7 @@ INPUTは1ビット単位でマッピング、OUTPUTは8bitで一色つまり24bi
 |          | bec    | 0x1003 |      | スタックから値を1つpopし、JMPSUBにセット。FPSUBに現在のSPをセット。現在のPC、FPをpush   |
 |          | call   | 0x1004 |      | FPSUBをFPにセットし、JMPSUBの先にジャンプ                                               |
 |          | ret    | 0x1005 |      | RETにスタックのtopを格納、FPをSPにセットしてローカル変数を破棄、FP+1の値にjmpして復帰、FP+2に保存されている元のFPを復元。RETをpush|
+|          | sync   | 0x1006 |      | 外部IOとの同期を取る                                                                    |
 |演算      | add    | 0x2000 |      | スタックから値を2つpopし、加算結果をpushする                                            |
 |          | sub    | 0x2001 |      | スタックから値を2つpopし、減算結果をpushする                                            |
 |          | mul    | 0x2002 |      | スタックから値を2つpopし、乗算結果をpushする                                            |

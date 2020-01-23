@@ -1,6 +1,7 @@
 `timescale 1ns / 1ns
 module testbench; 
 	reg SW[9:0];
+	reg KEY[1:0];
 	wire LEDR[9:0];
 	reg CLK1_50;
 	wire [3:0] VGA_R;
@@ -18,11 +19,14 @@ module testbench;
 	wire[7:0] HEX1;
 	wire[7:0] HEX2;
 	wire[7:0] HEX3;
+	wire[7:0] HEX4;
+	wire[7:0] HEX5;
 
 
 	CPU DUT(
 		.CLK1_50(CLK1_50),
 		.SW(SW),
+		.KEY(KEY),
 		.LEDR(LEDR),
 		.VGA_R(VGA_R),
 		.VGA_G(VGA_G),
@@ -38,11 +42,14 @@ module testbench;
 		.HEX0(HEX0),
 		.HEX1(HEX1),
 		.HEX2(HEX2),
-		.HEX3(HEX3)
+		.HEX3(HEX3),
+		.HEX4(HEX4),
+		.HEX5(HEX5)
 	);
 
 	initial begin
-		SW[9:0] = '{ 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+		SW[9:0] = '{ 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0 };
+		KEY[1:0] = '{1'b1, 1'b0};
 	end
 
 	initial begin

@@ -11,6 +11,8 @@ module ALU #(
 	output wire[15:0] address_rom,
 	input  wire[15:0] q_rom,
 
+	input wire SW[9:0],
+	input wire KEY[1:0],
   	output wire[15:0] SEG1,
   	output wire[15:0] SEG2,
 	
@@ -44,6 +46,7 @@ typedef enum bit[15:0] {
 	CP    = 16'h0007,
 	JMP   = 16'h1000,
 	BRA   = 16'h1001,
+	SYNC  = 16'h1006,
 	ADD   = 16'h2000,
 	SUB   = 16'h2001,
 	GRET  = 16'h2005,
@@ -368,6 +371,29 @@ always_ff @( posedge clock ) begin
 								end
 							endcase
 							wren <= 1;
+							state <= PRE_FETCH_OPCODE;
+						end
+					endcase
+				end
+				SYNC: begin
+					case ( state )
+						READY: begin
+							addr <= SEG1_BEGIN;
+							wren <= 0;
+							state <= FETCH_STACK;
+						end
+						FETCH_STACK: begin
+							addr <= INPUT_BEGIN;
+							state <= FETCHED_STACK;
+						end
+						FETCHED_STACK: begin
+							seg1 <= q_ram;
+							wren <= 1;
+							state <= POST_FETCH_STACK;
+						end
+						POST_FETCH_STACK: begin
+							data <= { SW[9], SW[8], SW[7], SW[6], SW[5], SW[4], SW[3], SW[2], SW[1], SW[0], KEY[1], KEY[0] };
+							pc <= pc + 16'h1;
 							state <= PRE_FETCH_OPCODE;
 						end
 					endcase
