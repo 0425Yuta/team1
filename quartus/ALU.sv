@@ -25,26 +25,31 @@ assign address_ram = addr;
 reg[15:0] data = 16'h0000;
 assign data_ram = data;
 reg[15:0] sp = 16'h0000;
+reg[15:0] fp = 16'h0000;
 reg wren = 0;
 assign wren_ram = wren;
 
 typedef enum bit[15:0] {
-	NOP  = 16'h0000,
-	IGN  = 16'h0001,
-	CP   = 16'h0007,
-	JMP  = 16'h1000,
-	BRA  = 16'h1001,
-	IMM  = 16'h0002,
-	ADD  = 16'h2000,
-	SUB  = 16'h2001,
-	GRET = 16'h2005,
-	LESS = 16'h2006,
-	EQ   = 16'h2007,
-	NEQ  = 16'h2008,
-	AND  = 16'h2009,
-	OR   = 16'h200a,
-	XOR  = 16'h200b,
-	NOT  = 16'h200c
+	NOP   = 16'h0000,
+	IGN   = 16'h0001,
+	IMM   = 16'h0002,
+	STOM  = 16'h0003,
+	LOADM = 16'h0004,
+	STOL  = 16'h0005,
+	LOADL = 16'h0006,
+	CP    = 16'h0007,
+	JMP   = 16'h1000,
+	BRA   = 16'h1001,
+	ADD   = 16'h2000,
+	SUB   = 16'h2001,
+	GRET  = 16'h2005,
+	LESS  = 16'h2006,
+	EQ    = 16'h2007,
+	NEQ   = 16'h2008,
+	AND   = 16'h2009,
+	OR    = 16'h200a,
+	XOR   = 16'h200b,
+	NOT   = 16'h200c
 } OPCODE;
 OPCODE opcode;
 
@@ -59,6 +64,8 @@ enum bit[15:0] {
 	PRE_FETCH_STACK,
 	FETCH_STACK,
 	FETCHED_STACK,
+	POST_FETCH_STACK,
+	COMPLETE_STORE,
 	ERROR = 16'hffff
 } state = INIT;
 
@@ -106,11 +113,11 @@ always_ff @( posedge clock ) begin
 		end
 		FETCH_OPCODE: begin
 			state <= READY;
-			wren <= 0;
 		end
 		default: begin
 			if ( state == READY ) begin
 				opcode = OPCODE'(q_rom);
+				wren <= 0;
 			end
 			case ( opcode )
 				NOP: begin
@@ -205,6 +212,67 @@ always_ff @( posedge clock ) begin
 							pc <= pc + 16'h1;
 							data <= q_ram;
 							state <= PRE_FETCH_OPCODE;
+						end
+					endcase
+				end
+				STOM, STOL: begin
+					case ( state )
+						READY: begin
+							addr <= sp - 16'h1;
+							wren <= 0;
+							state <= PRE_FETCH_STACK;
+						end
+						PRE_FETCH_STACK: begin
+							state <= FETCH_STACK;
+							addr <= sp - 16'h2;
+						end
+						FETCH_STACK: begin
+							state <= FETCHED_STACK;
+							arg1 <= q_ram;
+						end
+						FETCHED_STACK: begin
+							sp <= sp - 16'h2;
+							pc <= pc + 16'h1;
+							wren <= 1;
+							state <= PRE_FETCH_OPCODE;
+							data <= q_ram;
+							case ( opcode )
+								STOL:
+									addr <= fp + arg1;
+								STOM:
+									addr <= arg1;
+							endcase
+						end
+					endcase
+				end
+				LOADL, LOADM: begin
+					case ( state )
+						READY: begin
+							addr <= sp - 16'h1;
+							wren <= 0;
+							state <= FETCH_STACK;
+						end
+						FETCH_STACK: begin
+							state <= FETCHED_STACK;
+						end
+						FETCHED_STACK: begin
+							case ( opcode )
+								LOADL:
+									addr <= fp + q_ram;
+								LOADM:
+									addr <= q_ram;
+							endcase
+							state <= POST_FETCH_STACK;
+						end
+						POST_FETCH_STACK: begin
+							state <= COMPLETE_STORE;
+						end
+						COMPLETE_STORE: begin
+							pc <= pc + 16'h1;
+							state <= PRE_FETCH_OPCODE;
+							addr <= sp - 16'h1;
+							wren <= 1;
+							data <= q_ram;
 						end
 					endcase
 				end
