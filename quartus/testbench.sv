@@ -14,8 +14,10 @@ module testbench;
 	wire[15:0] ROM;
 	wire[15:0] SP;
 	wire[15:0] ADDR;
-	wire[15:0] SEG1;
-	wire[15:0] SEG2;
+	wire[7:0] HEX0;
+	wire[7:0] HEX1;
+	wire[7:0] HEX2;
+	wire[7:0] HEX3;
 
 
 	CPU DUT(
@@ -33,8 +35,10 @@ module testbench;
 		.OUT4(ROM),
 		.OUT5(SP),
 		.OUT6(ADDR),
-		.SEG1(SEG1),
-		.SEG2(SEG2)
+		.HEX0(HEX0),
+		.HEX1(HEX1),
+		.HEX2(HEX2),
+		.HEX3(HEX3)
 	);
 
 	initial begin

@@ -18,16 +18,25 @@ module CPU(
 	output wire [15:0] OUT5,
 	output wire [15:0] OUT6,
 
-  output wire [15:0] SEG1,
-  output wire [15:0] SEG2
+  	output wire [7:0] HEX0,
+  	output wire [7:0] HEX1,
+  	output wire [7:0] HEX2,
+  	output wire [7:0] HEX3
 );
 	wire clock_cpu;
 	wire clock_vga;
 
 	reg[15:0] address_cpu, address_vga, q_cpu, q_vga, data_cpu, data_vga;
 	reg[15:0] address_rom, q_rom;
+	reg[15:0] SEG1;
 	wire wren_cpu;
 	reg wren_vga;
+
+	SEG seg1(.num(SEG1[ 3: 0]), .HEX(HEX0), .dot(0));
+	SEG seg2(.num(SEG1[ 7: 4]), .HEX(HEX1), .dot(0));
+	SEG seg3(.num(SEG1[11: 8]), .HEX(HEX2), .dot(0));
+	SEG seg4(.num(SEG1[15:12]), .HEX(HEX3), .dot(0));
+
 	PLL pll(.inclk0(CLK1_50), .c0(clock_cpu), .c1(clock_vga));
 	RAM ram(
 		.clock_a(clock_cpu),
@@ -70,8 +79,7 @@ module CPU(
 		.out4(OUT4),
 		.out5(OUT5),
 		.out6(OUT6),
-    .SEG1(SEG1),
-    .SEG2(SEG2),
+    	.SEG1(SEG1),
 		.q_rom(q_rom));
 
 endmodule
