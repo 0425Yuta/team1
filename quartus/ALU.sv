@@ -1,4 +1,8 @@
-module ALU(
+module ALU #(
+	parameter STACK_BEGIN = 16'h0010,
+	parameter INPUT_BEGIN = 16'h0000,
+	parameter SEG1_BEGIN = 16'h0001
+)(
 	input  wire clock,
 	output wire[15:0] address_ram,
 	input  wire[15:0] q_ram,
@@ -7,8 +11,8 @@ module ALU(
 	output wire[15:0] address_rom,
 	input  wire[15:0] q_rom,
 
-  output wire[15:0] SEG1,
-  output wire[15:0] SEG2,
+  	output wire[15:0] SEG1,
+  	output wire[15:0] SEG2,
 	
 	output wire[15:0] out1,
 	output wire[15:0] out2,
@@ -24,8 +28,8 @@ reg[15:0] addr = 16'h0000;
 assign address_ram = addr;
 reg[15:0] data = 16'h0000;
 assign data_ram = data;
-reg[15:0] sp = 16'h0000;
-reg[15:0] fp = 16'h0000;
+reg[15:0] sp = STACK_BEGIN;
+reg[15:0] fp = STACK_BEGIN;
 reg wren = 0;
 assign wren_ram = wren;
 
