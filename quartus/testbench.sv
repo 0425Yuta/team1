@@ -1,4 +1,4 @@
-`timescale 1ns / 1ns
+`timescale 10ns / 1ns
 module testbench; 
 	reg SW[9:0];
 	reg KEY[1:0];
@@ -62,6 +62,12 @@ module testbench;
 		end
 	end
 
-	initial #2000
+	initial begin
+		KEY[0] = 0;
+		#1000;
+		KEY[0] = 1;
+	end
+
+	initial #2000000
 		$stop;
 endmodule
