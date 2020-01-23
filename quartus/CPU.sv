@@ -63,6 +63,7 @@ module CPU(
 	VGA vga(
 		.q(q_vga),
 		.clock(clock_vga),
+		.address(address_vga),
 		.VGA_R(VGA_R),
 		.VGA_G(VGA_G),
 		.VGA_B(VGA_B),
