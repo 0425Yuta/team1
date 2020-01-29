@@ -1,9 +1,11 @@
 module VGA #(
 	parameter [15:0]  WIDTH  = 16'd640,
-	parameter [15:0]  HEIGHT = 16'd480
+	parameter [15:0]  HEIGHT = 16'd480,
+	parameter [15:0]  VGA_REGION = 16'h2000
 )(
 	input wire clock,
 	input wire [15:0] q,
+	output wire [15:0] vga_addr,
 	output wire VS,
 	output wire HS,
 	output wire [3:0] VGA_R,
@@ -27,19 +29,65 @@ module VGA #(
 	localparam [15:0] H_TOTAL = H_WAIT_START + H_WAIT_NEWLINE   + WIDTH  + HSYNC_INTERVAL;
 	localparam [15:0] V_TOTAL = V_WAIT_START + V_WAIT_NEWSCREEN + HEIGHT + VSYNC_INTERVAL;
 
-	reg[3:0] R = 4'b0000;
-	reg[3:0] G = 4'b0000;
-	reg[3:0] B = 4'b0000;
-
 	wire wren = 
 		x >= HSYNC_INTERVAL + H_WAIT_START &&
 		x < HSYNC_INTERVAL + H_WAIT_START + WIDTH &&
 		y >= VSYNC_INTERVAL + V_WAIT_START &&
 		y < VSYNC_INTERVAL + V_WAIT_START + HEIGHT;
 
-	assign VGA_R = R & {wren, wren, wren, wren};
-	assign VGA_G = G & {wren, wren, wren, wren};
-	assign VGA_B = B & {wren, wren, wren, wren};
+	assign VGA_R = q[3:0] & {wren, wren, wren, wren};
+	assign VGA_G = q[7:3] & {wren, wren, wren, wren};
+	assign VGA_B = q[11:4] & {wren, wren, wren, wren};
+
+	localparam [15:0] PIXEL_HEIGHT = 16'd16;
+	localparam [15:0] PIXEL_WIDTH  = 16'd16;
+	localparam [15:0] MEM_WIDTH = HEIGHT / PIXEL_HEIGHT;
+	localparam [15:0] MEM_HEIGHT = WIDTH / PIXEL_WIDTH;
+
+	reg [15:0] vga_x = 16'h2;
+	reg [15:0] vga_y = 16'h0;
+	reg [15:0] mem_x = 16'h0;
+	reg [15:0] mem_y = 16'h0;
+	reg [15:0] addr = 16'h0;
+	assign vga_addr = addr;
+
+	always_ff @(posedge clock) begin
+		if (
+			x + 16'h2 >= HSYNC_INTERVAL + H_WAIT_START &&
+			x + 16'h2 <  HSYNC_INTERVAL + H_WAIT_START + WIDTH &&
+			y >= VSYNC_INTERVAL + V_WAIT_START &&
+			y <  VSYNC_INTERVAL + V_WAIT_START + HEIGHT
+		) begin
+			if ( vga_x >= PIXEL_WIDTH && vga_y >= PIXEL_HEIGHT && mem_x >= MEM_WIDTH && mem_y >= MEM_HEIGHT ) begin
+				vga_x <= 16'h0;
+				mem_x <= 16'h0;
+				vga_y <= 16'h0;
+				mem_y <= 16'h0;
+				addr <= 16'h0;
+			end
+			else if ( vga_x >= PIXEL_WIDTH && mem_x >= MEM_WIDTH && vga_y >= PIXEL_HEIGHT ) begin
+				vga_x <= 16'h0;
+				mem_x <= 16'h0;
+				vga_y <= 16'h0;
+				mem_y <= mem_y + 16'h1;
+				addr <= addr + 16'h1;
+			end
+			else if ( vga_x >= PIXEL_WIDTH && mem_x >= MEM_WIDTH ) begin
+				vga_x <= 16'h0;
+				mem_x <= 16'h0;
+				vga_y <= vga_y + 16'h1;
+				addr <= addr - MEM_WIDTH;
+			end
+			else if ( vga_x >= PIXEL_WIDTH ) begin
+				vga_x <= 16'h0;
+				mem_x <= mem_x + 16'h1;
+				addr <= addr + 16'h1;
+			end
+			else begin
+				vga_x <= vga_x + 16'h1;
+			end
+		end
+	end
 
 	always_ff @(posedge clock) begin
 		if (x >= H_TOTAL && y >= V_TOTAL) begin
@@ -53,20 +101,5 @@ module VGA #(
 		else begin
 			x <= x + 16'd1;
 		end
-	end
-
-	always_ff @(posedge clock) begin
-		if (R == 4'b1111)
-			R <= 4'b0000;
-		else
-			R <= R + 4'b0001;
-		if (G == 4'b1111)
-			G <= 4'b0000;
-		else
-			G <= G + 4'b0001;
-		if (B == 4'b1111)
-			B <= 4'b0000;
-		else
-			B <= B + 4'b0001;
 	end
 endmodule
