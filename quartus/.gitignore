@@ -4,4 +4,7 @@
 /output_files
 /greybox_tmp
 *.bak
+*.rpt
 *.qws
+*.hex
+.qsys_edit/
