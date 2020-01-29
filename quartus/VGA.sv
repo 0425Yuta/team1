@@ -58,27 +58,27 @@ module VGA #(
 			y >= VSYNC_INTERVAL + V_WAIT_START &&
 			y <  VSYNC_INTERVAL + V_WAIT_START + HEIGHT
 		) begin
-			if ( vga_x >= PIXEL_WIDTH && vga_y >= PIXEL_HEIGHT && mem_x >= MEM_WIDTH && mem_y >= MEM_HEIGHT ) begin
+			if ( vga_x >= PIXEL_WIDTH-1 && vga_y >= PIXEL_HEIGHT-1 && mem_x >= MEM_WIDTH-1 && mem_y >= MEM_HEIGHT-1 ) begin
 				vga_x <= 16'h0;
 				mem_x <= 16'h0;
 				vga_y <= 16'h0;
 				mem_y <= 16'h0;
 				addr <= 16'h0;
 			end
-			else if ( vga_x >= PIXEL_WIDTH && mem_x >= MEM_WIDTH && vga_y >= PIXEL_HEIGHT ) begin
+			else if ( vga_x >= PIXEL_WIDTH-1 && mem_x >= MEM_WIDTH-1 && vga_y >= PIXEL_HEIGHT-1 ) begin
 				vga_x <= 16'h0;
 				mem_x <= 16'h0;
 				vga_y <= 16'h0;
 				mem_y <= mem_y + 16'h1;
 				addr <= addr + 16'h1;
 			end
-			else if ( vga_x >= PIXEL_WIDTH && mem_x >= MEM_WIDTH ) begin
+			else if ( vga_x >= PIXEL_WIDTH-1 && mem_x >= MEM_WIDTH-1 ) begin
 				vga_x <= 16'h0;
 				mem_x <= 16'h0;
 				vga_y <= vga_y + 16'h1;
-				addr <= addr - MEM_WIDTH;
+				addr <= addr - (MEM_WIDTH - 16'h1);
 			end
-			else if ( vga_x >= PIXEL_WIDTH ) begin
+			else if ( vga_x >= PIXEL_WIDTH-1 ) begin
 				vga_x <= 16'h0;
 				mem_x <= mem_x + 16'h1;
 				addr <= addr + 16'h1;
