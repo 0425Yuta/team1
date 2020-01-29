@@ -62,6 +62,7 @@ module CPU(
 	// DEBUG
 	VGA vga(
 		.q(q_vga),
+		.vga_addr(address_vga),
 		.clock(clock_vga),
 		.address(address_vga),
 		.VGA_R(VGA_R),
