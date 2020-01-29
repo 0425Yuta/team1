@@ -86,7 +86,7 @@ def assemble(lines):
             if operand in labels:
                 line.append(labels[operand])
             else:
-                line.append(int(operand))
+                line.append(int(operand, 0))
         binaries.append(line)
     
     tohex(binaries)
